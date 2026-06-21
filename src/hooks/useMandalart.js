@@ -141,13 +141,14 @@ export function useMandalart(mandalartId) {
       return next;
     });
 
-    // Update the existing row directly — simpler and more reliable than upsert
+    // Use RPC to bypass RLS edge cases in production
     supabase
-      .from("mandalart_cells")
-      .update({ completed: newVal })
-      .eq("mandalart_id", mandalartId)
-      .eq("row", r)
-      .eq("col", c)
+      .rpc("set_cell_completed", {
+        p_mandalart_id: mandalartId,
+        p_row: r,
+        p_col: c,
+        p_completed: newVal,
+      })
       .then(({ error }) => { if (error) console.error("completed save error:", error); });
   }, [mandalartId]);
 
