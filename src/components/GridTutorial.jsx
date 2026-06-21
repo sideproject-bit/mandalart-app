@@ -69,6 +69,65 @@ const STEP_VISUALS = [
       />
     </svg>
   ),
+  // Step 5: full grid vs focus view
+  ({ accent }) => (
+    <svg width={108} height={108} viewBox="0 0 108 108">
+      {/* Left: minimap 3x3 */}
+      {Array.from({ length: 9 }).map((_, i) => {
+        const col = i % 3, row = Math.floor(i / 3);
+        const isFocused = i === 4;
+        return (
+          <rect key={i}
+            x={4 + col * 15} y={32 + row * 15} width={13} height={13}
+            fill={isFocused ? accent : accent + "28"}
+            stroke={isFocused ? accent : "#ffffff20"} strokeWidth={1}
+          />
+        );
+      })}
+      <text x={26} y={24} textAnchor="middle" fill={accent} fontSize={7} fontWeight={700} opacity={0.8}>MINIMAP</text>
+      {/* Divider */}
+      <line x1={52} y1={20} x2={52} y2={88} stroke="#ffffff18" strokeWidth={1} />
+      {/* Right: large focused block 3x3 */}
+      {Array.from({ length: 9 }).map((_, i) => {
+        const col = i % 3, row = Math.floor(i / 3);
+        const isCenter = i === 4;
+        return (
+          <rect key={i}
+            x={58 + col * 16} y={28 + row * 16} width={14} height={14}
+            fill={isCenter ? accent + "66" : "#ffffff0d"}
+            stroke="#ffffff22" strokeWidth={1}
+          />
+        );
+      })}
+      <text x={82} y={20} textAnchor="middle" fill="#fff" fontSize={7} fontWeight={700} opacity={0.6}>FOCUS</text>
+    </svg>
+  ),
+  // Step 6: detail cells with completion check
+  ({ accent }) => (
+    <svg width={108} height={108} viewBox="0 0 108 108">
+      {Array.from({ length: 9 }).map((_, i) => {
+        const col = i % 3, row = Math.floor(i / 3);
+        const isCenter = i === 4;
+        const isDone = [0, 2, 5, 6].includes(i);
+        return (
+          <g key={i}>
+            <rect
+              x={col * 36 + 1} y={row * 36 + 1} width={34} height={34}
+              fill={isCenter ? accent : isDone ? accent + "38" : "#ffffff0a"}
+              stroke={isCenter ? accent : isDone ? accent + "70" : "#ffffff15"} strokeWidth={1}
+            />
+            {isDone && (
+              <polyline
+                points={`${col*36+23},${row*36+20} ${col*36+27},${row*36+26} ${col*36+33},${row*36+14}`}
+                fill="none" stroke={accent} strokeWidth={2.5}
+                strokeLinecap="round" strokeLinejoin="round"
+              />
+            )}
+          </g>
+        );
+      })}
+    </svg>
+  ),
 ];
 
 export default function GridTutorial({ t, pal, onClose, onDontShow }) {
