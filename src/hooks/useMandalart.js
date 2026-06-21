@@ -61,6 +61,8 @@ export function useMandalart(mandalartId) {
         d[cell.row][cell.col] = cell.description ?? "";
         comp[cell.row][cell.col] = cell.completed ?? false;
       });
+      const completedCells = (cells || []).filter(c => c.completed);
+      console.log("[load] cellsErr:", cellsErr, "| cells:", cells?.length, "| completed cells:", completedCells.map(c => `(${c.row},${c.col})=${c.completed}`));
       setGrid(g);
       setDescriptions(d);
       setCompleted(comp);
@@ -129,15 +131,19 @@ export function useMandalart(mandalartId) {
   }, [queueCell]);
 
   const toggleCompleted = useCallback((r, c) => {
-    let newVal;
+    // Read current value from ref (always in sync) and compute new value BEFORE setState
+    const newVal = !(compRef.current?.[r]?.[c] ?? false);
+    console.log("[toggleCompleted] r:", r, "c:", c, "newVal:", newVal);
+
+    // Update local state
     setCompleted((prev) => {
       const next = (prev || emptyBool()).map((row) => row.slice());
-      next[r][c] = !next[r][c];
-      newVal = next[r][c];
+      next[r][c] = newVal;
       compRef.current = next;
       return next;
     });
-    // Save directly instead of going through flushCells to avoid race conditions
+
+    // Save directly to DB
     supabase
       .from("mandalart_cells")
       .upsert({
@@ -148,7 +154,9 @@ export function useMandalart(mandalartId) {
         description: descRef.current?.[r][c] ?? "",
         completed: newVal,
       }, { onConflict: "mandalart_id,row,col" })
-      .then(({ error }) => { if (error) console.error("completed save error:", error); });
+      .then(({ error }) => {
+        console.log("[toggleCompleted] DB saved completed:", newVal, "error:", error);
+      });
   }, [mandalartId]);
 
   const updateTitle = useCallback((text) => {
