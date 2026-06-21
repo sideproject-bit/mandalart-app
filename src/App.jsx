@@ -30,6 +30,8 @@ function AppShell() {
   const [viewingFriend, setViewingFriend] = useState(null);
   const [viewingMandalart, setViewingMandalart] = useState(null);
   const [signOutConfirm, setSignOutConfirm] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [deletebusy, setDeleteBusy] = useState(false);
   const [featureGuideOpen, setFeatureGuideOpen] = useState(false);
   const prevUserIdRef = useRef(null);
 
@@ -90,6 +92,19 @@ function AppShell() {
   const handleSignOut = async () => {
     setSignOutConfirm(false);
     music.stop();
+    await signOut();
+  };
+
+  const handleDeleteAccount = async () => {
+    setDeleteBusy(true);
+    music.stop();
+    const { error } = await supabase.rpc("delete_own_account");
+    if (error) {
+      setDeleteBusy(false);
+      setDeleteConfirm(false);
+      alert(error.message);
+      return;
+    }
     await signOut();
   };
 
@@ -284,6 +299,40 @@ function AppShell() {
             myCode={myCode}
             onViewFriend={(friend) => { setViewingFriend(friend); setView("friendList"); play("C5", "16n"); }}
           />
+
+          {/* Delete account */}
+          <div style={{ marginTop: 40, paddingTop: 24, borderTop: `1px solid ${pal.ink}18` }}>
+            {deleteConfirm ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                <p style={{ fontSize: 13, color: "#C7382E", margin: 0, lineHeight: 1.6 }}>
+                  {t.auth.deleteAccountConfirm}
+                </p>
+                <div style={{ display: "flex", gap: 10 }}>
+                  <button
+                    onClick={handleDeleteAccount}
+                    disabled={deletebusy}
+                    style={{ background: "#C7382E", color: "#fff", border: "none", padding: "7px 14px", fontSize: 11, fontWeight: 700, cursor: deletebusy ? "not-allowed" : "pointer", opacity: deletebusy ? 0.6 : 1 }}
+                  >
+                    {deletebusy ? t.auth.deleteAccountDeleting : t.auth.deleteAccountYes}
+                  </button>
+                  <button
+                    onClick={() => setDeleteConfirm(false)}
+                    disabled={deletebusy}
+                    style={{ background: "none", border: `1px solid ${pal.ink}40`, color: pal.ink, padding: "7px 14px", fontSize: 11, cursor: "pointer" }}
+                  >
+                    {t.auth.deleteAccountNo}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                onClick={() => { setSignOutConfirm(false); setDeleteConfirm(true); }}
+                style={{ background: "none", border: "none", color: "#C7382E", opacity: 0.5, fontSize: 11, cursor: "pointer", padding: 0 }}
+              >
+                {t.auth.deleteAccount}
+              </button>
+            )}
+          </div>
         </div>
       )}
 
