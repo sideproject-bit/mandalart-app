@@ -140,7 +140,11 @@ export default function AuthGate({ play }) {
           </div>
 
           {mode === "signup" && (
-            <input value={username} onChange={(e) => setUsername(e.target.value)} placeholder={t.auth.username} style={inputStyle()} required />
+            <>
+              <input value={username} onChange={(e) => setUsername(e.target.value)} placeholder={t.auth.username} style={inputStyle()} required />
+              <p style={{ fontSize: 11, color: "#F2EDE1", opacity: 0.4, margin: "-6px 0 10px", lineHeight: 1.5 }}>{t.auth.usernameHint}</p>
+            </>
+
           )}
           <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder={t.auth.email} style={inputStyle()} required />
           <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder={t.auth.password} style={inputStyle()} required minLength={6} />
