@@ -199,6 +199,7 @@ export default function Cell({
           onClick={(e) => {
             e.stopPropagation();
             setLocalCompleted((v) => !v);
+            console.log("[cell click] onToggleCompleted:", typeof onToggleCompleted, r, c);
             onToggleCompleted?.(r, c);
           }}
           style={{

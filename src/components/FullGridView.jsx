@@ -2,7 +2,7 @@ import React from "react";
 import Cell from "./Cell";
 import { isHeaderCell, isOuterCenterCell } from "../gridUtils";
 
-export default function FullGridView({ grid, descriptions, onChange, onLink, onOpenDesc, pal, t, highlightBlock, readOnly = false }) {
+export default function FullGridView({ grid, descriptions, completed, onChange, onLink, onOpenDesc, onToggleCompleted, pal, t, highlightBlock, readOnly = false }) {
   return (
     <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 6, background: pal.ink, padding: 6, border: `3px solid ${pal.ink}` }}>
       {Array.from({ length: 3 }).map((_, br) =>
@@ -34,6 +34,8 @@ export default function FullGridView({ grid, descriptions, onChange, onLink, onO
                       onLink={onLink}
                       description={descriptions[r][c]}
                       onOpenDesc={onOpenDesc}
+                      completed={completed?.[r][c] ?? false}
+                      onToggleCompleted={onToggleCompleted}
                       pal={pal}
                       t={t}
                       highlighted={false}

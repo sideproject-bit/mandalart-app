@@ -8,7 +8,7 @@ import { useSound, useCompactDetect } from "../useSound";
 import { isHeaderCell, isOuterCenterCell, headerToBlock, blockToHeader } from "../gridUtils";
 
 export default function MandalartGrid({ mandalartId, pal, t, soundOn, readOnly = false, ownerLabel }) {
-  const { title, isPublic, grid, descriptions, updateTitle, updateVisibility, updateCell, updateDescription, saveState, saveNow } = useMandalart(mandalartId);
+  const { title, isPublic, grid, descriptions, completed, updateTitle, updateVisibility, updateCell, updateDescription, toggleCompleted, saveState, saveNow } = useMandalart(mandalartId);
   const [descTarget, setDescTarget] = useState(null);
   const [showSaved, setShowSaved] = useState(false);
   const [highlightBlock, setHighlightBlock] = useState(null);
@@ -189,10 +189,11 @@ export default function MandalartGrid({ mandalartId, pal, t, soundOn, readOnly =
 
       <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
         <div style={{ flex: compact ? "1 1 100%" : "1 1 560px", minWidth: 0 }}>
-          {compact ? (
+          {console.log("[grid] readOnly:", readOnly, "toggleCompleted type:", typeof toggleCompleted) || compact ? (
             <CompactBlockView
               grid={grid}
               descriptions={descriptions}
+              completed={completed}
               focusBlock={focusBlock}
               setFocusBlock={setFocusBlock}
               pal={pal}
@@ -200,6 +201,7 @@ export default function MandalartGrid({ mandalartId, pal, t, soundOn, readOnly =
               onChange={handleCellChange}
               onLink={linkJump}
               onOpenDesc={openDescription}
+              onToggleCompleted={readOnly ? null : toggleCompleted}
               highlightBlock={highlightBlock}
               play={play}
               readOnly={readOnly}
@@ -208,9 +210,11 @@ export default function MandalartGrid({ mandalartId, pal, t, soundOn, readOnly =
             <FullGridView
               grid={grid}
               descriptions={descriptions}
+              completed={completed}
               onChange={handleCellChange}
               onLink={linkJump}
               onOpenDesc={openDescription}
+              onToggleCompleted={readOnly ? null : toggleCompleted}
               pal={pal}
               t={t}
               highlightBlock={highlightBlock}

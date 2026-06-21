@@ -3,7 +3,7 @@ import Cell from "./Cell";
 import { isHeaderCell, isOuterCenterCell, blockLabel } from "../gridUtils";
 
 export default function CompactBlockView({
-  grid, descriptions, focusBlock, setFocusBlock, pal, t, onChange, onLink, onOpenDesc, highlightBlock, play, readOnly = false,
+  grid, descriptions, completed, focusBlock, setFocusBlock, pal, t, onChange, onLink, onOpenDesc, onToggleCompleted, highlightBlock, play, readOnly = false,
 }) {
   const [fbr, fbc] = focusBlock;
   return (
@@ -73,6 +73,8 @@ export default function CompactBlockView({
                   onLink={onLink}
                   description={descriptions[r][c]}
                   onOpenDesc={onOpenDesc}
+                  completed={completed?.[r][c] ?? false}
+                  onToggleCompleted={onToggleCompleted}
                   pal={pal}
                   t={t}
                   highlighted={false}
