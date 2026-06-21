@@ -129,14 +129,27 @@ export function useMandalart(mandalartId) {
   }, [queueCell]);
 
   const toggleCompleted = useCallback((r, c) => {
+    let newVal;
     setCompleted((prev) => {
       const next = (prev || emptyBool()).map((row) => row.slice());
       next[r][c] = !next[r][c];
-      compRef.current = next; // sync immediately so flushCells always reads latest
+      newVal = next[r][c];
+      compRef.current = next;
       return next;
     });
-    queueCell(r, c);
-  }, [queueCell]);
+    // Save directly instead of going through flushCells to avoid race conditions
+    supabase
+      .from("mandalart_cells")
+      .upsert({
+        mandalart_id: mandalartId,
+        row: r,
+        col: c,
+        content: gridRef.current?.[r][c] ?? "",
+        description: descRef.current?.[r][c] ?? "",
+        completed: newVal,
+      }, { onConflict: "mandalart_id,row,col" })
+      .then(({ error }) => { if (error) console.error("completed save error:", error); });
+  }, [mandalartId]);
 
   const updateTitle = useCallback((text) => {
     setTitle(text);
