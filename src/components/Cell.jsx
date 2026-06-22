@@ -50,16 +50,16 @@ export default function Cell({
     : isHeader || isOuterCenter
     ? subGoalDone ? pal.accent + "28" : pal.accent2 + "44"
     : localCompleted
-    ? (isMondrian ? "rgba(242,237,225,0.28)" : pal.accent3 + "42")
-    : pal.accent3 + "18";
+    ? (isMondrian ? pal.accent3 + "66" : pal.accent3 + "42")
+    : (isMondrian ? "#ffffff" : pal.accent3 + "18");
 
   const border = isMain
     ? `2px solid ${pal.accent}`
     : isHeader || isOuterCenter
     ? subGoalDone ? `2px solid ${pal.accent}` : `1px solid ${pal.accent2}66`
     : localCompleted
-    ? (isMondrian ? "1px solid rgba(242,237,225,0.5)" : `1px solid ${pal.accent3}60`)
-    : `1px solid ${pal.accent3}30`;
+    ? (isMondrian ? `1px solid ${pal.accent3}99` : `1px solid ${pal.accent3}60`)
+    : (isMondrian ? "1px solid rgba(180,180,180,0.3)" : `1px solid ${pal.accent3}30`);
 
   return (
     <div
@@ -166,7 +166,7 @@ export default function Cell({
             }}>
               <Check
                 size={big ? 72 : 40}
-                color={pal.accent}
+                color={isMondrian ? pal.accent3 : pal.accent}
                 style={{ opacity: 0.55 }}
                 strokeWidth={4.0}
               />
