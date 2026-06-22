@@ -51,7 +51,7 @@ export default function Cell({
     ? subGoalDone ? pal.accent + "28" : pal.accent2 + "44"
     : localCompleted
     ? (isMondrian ? pal.accent3 + "66" : pal.accent3 + "42")
-    : (isMondrian ? pal.bg : pal.accent3 + "18");
+    : (isMondrian ? pal.ink + "0e" : pal.accent3 + "0c");
 
   const border = isMain
     ? `2px solid ${pal.accent}`
