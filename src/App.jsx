@@ -35,6 +35,7 @@ function AppShell() {
   const [deletebusy, setDeleteBusy] = useState(false);
   const [featureGuideOpen, setFeatureGuideOpen] = useState(false);
   const [gridTutorialOpen, setGridTutorialOpen] = useState(false);
+  const [splashed, setSplashed] = useState(false);
   const prevUserIdRef = useRef(null);
 
   const pal = paletteFor(theme, dark);
@@ -167,6 +168,35 @@ function AppShell() {
           onClose={() => setGridTutorialOpen(false)}
           onDontShow={() => localStorage.setItem(TUTORIAL_SKIP_KEY, "1")}
         />
+      )}
+
+      {view === "home" && !splashed && (
+        <div
+          className="fade-in"
+          onClick={async () => { await import("tone").then(m => m.start()); setSplashed(true); }}
+          style={{
+            position: "fixed", inset: 0, zIndex: 100,
+            background: "#000",
+            display: "flex", flexDirection: "column",
+            alignItems: "center", justifyContent: "center",
+            cursor: "pointer", gap: 24,
+          }}
+        >
+          <h1 style={{
+            fontFamily: titleFontFamily,
+            fontWeight: 900, fontSize: "clamp(56px,12vw,160px)",
+            letterSpacing: "-0.03em", lineHeight: 0.88,
+            color: pal.accent, margin: 0, textTransform: "uppercase",
+          }}>
+            {t.title}
+          </h1>
+          <p style={{ fontSize: "clamp(11px,1.2vw,14px)", letterSpacing: "0.1em", color: "#fff", opacity: 0.45, textTransform: "uppercase", margin: 0 }}>
+            {t.tagline}
+          </p>
+          <p style={{ fontSize: "clamp(11px,1.1vw,13px)", color: "#fff", opacity: 0.25, margin: "32px 0 0", letterSpacing: "0.06em", textTransform: "uppercase" }}>
+            {t.splash.cta}
+          </p>
+        </div>
       )}
 
       {view === "home" && (() => {
