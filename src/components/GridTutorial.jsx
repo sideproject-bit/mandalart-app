@@ -210,23 +210,24 @@ export default function GridTutorial({ t, pal, onClose, onDontShow }) {
           overflow: "hidden",
         }}
       >
-        {/* Progress bar */}
-        <div style={{ display: "flex", gap: 3, padding: "16px 16px 0" }}>
-          {steps.map((_, i) => (
-            <div key={i} style={{
-              height: 3, flex: 1,
-              background: i <= step ? pal.accent : pal.ink + "22",
-              transition: "background 0.3s ease",
-            }} />
-          ))}
+        {/* Progress bar + close button row */}
+        <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "16px 12px 0" }}>
+          <div style={{ display: "flex", gap: 3, flex: 1 }}>
+            {steps.map((_, i) => (
+              <div key={i} style={{
+                height: 3, flex: 1,
+                background: i <= step ? pal.accent : pal.ink + "22",
+                transition: "background 0.3s ease",
+              }} />
+            ))}
+          </div>
+          <button
+            onClick={handleClose}
+            style={{ flexShrink: 0, background: "none", border: "none", color: pal.ink, opacity: 0.5, cursor: "pointer", padding: 2, display: "flex" }}
+          >
+            <X size={16} />
+          </button>
         </div>
-
-        <button
-          onClick={handleClose}
-          style={{ position: "absolute", top: 12, right: 12, background: "none", border: "none", color: pal.ink, opacity: 0.5, cursor: "pointer" }}
-        >
-          <X size={16} />
-        </button>
 
         {/* Visual */}
         <div style={{
