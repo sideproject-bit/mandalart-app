@@ -11,9 +11,9 @@ export function useSound(soundOn) {
     }).toDestination();
     return () => synth.current?.dispose();
   }, []);
-  return useCallback((note = "C5", dur = "32n") => {
+  return useCallback(async (note = "C5", dur = "32n") => {
     if (!soundOn) return;
-    Tone.start();
+    await Tone.start();
     synth.current?.triggerAttackRelease(note, dur);
   }, [soundOn]);
 }
