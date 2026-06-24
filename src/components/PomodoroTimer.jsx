@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import * as Tone from "tone";
-import { X } from "lucide-react";
+import { X, ChevronUp, ChevronDown, Trash2 } from "lucide-react";
 import BreathingBlocks from "./BreathingBlocks";
 
 const COLS = 9;
@@ -281,16 +281,11 @@ export default function PomodoroTimer({ t, pal, dark, theme, notifOn, userId }) 
           {liElapsedMs === 0 && !liRunning ? (
             /* Goal setup */
             <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: 13, fontWeight: 700, opacity: 0.7, marginBottom: 14 }}>{li.goalLabel}</div>
-              <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                <input type="number" min={0} max={23} value={liGoalH}
-                  onChange={(e) => setLiGoalH(Math.max(0, Math.min(23, parseInt(e.target.value) || 0)))}
-                  style={liNumStyle(dark, ink)} />
-                <span style={{ fontWeight: 700 }}>h</span>
-                <input type="number" min={0} max={59} value={liGoalM}
-                  onChange={(e) => setLiGoalM(Math.max(0, Math.min(59, parseInt(e.target.value) || 0)))}
-                  style={liNumStyle(dark, ink)} />
-                <span style={{ fontWeight: 700 }}>m</span>
+              <div style={{ fontSize: 13, fontWeight: 700, opacity: 0.7, marginBottom: 16 }}>{li.goalLabel}</div>
+              <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 14, marginBottom: 10 }}>
+                <TimeStepper value={liGoalH} setValue={setLiGoalH} max={23} unit="h" dark={dark} ink={ink} accent={liAccent} />
+                <span style={{ fontSize: 28, fontWeight: 900, opacity: 0.3, paddingBottom: 18 }}>:</span>
+                <TimeStepper value={liGoalM} setValue={setLiGoalM} max={59} unit="m" dark={dark} ink={ink} accent={liAccent} />
               </div>
               <div style={{ fontSize: 12, opacity: 0.5, marginBottom: 20 }}>{li.goalSet}</div>
               <button onClick={() => setLiRunning(true)} disabled={liGoalMs === 0}
@@ -325,7 +320,7 @@ export default function PomodoroTimer({ t, pal, dark, theme, notifOn, userId }) 
                 {liRunning ? (
                   <button onClick={() => setLiRunning(false)} style={btnStyle(liAccent, "#fff", 1)}>{li.pause}</button>
                 ) : (
-                  <button onClick={() => setLiRunning(true)} disabled={liElapsedMs >= LI_MAX_MS} style={btnStyle(liAccent, "#fff", liElapsedMs >= LI_MAX_MS ? 0.4 : 1)}>{li.resume}</button>
+                  <button onClick={() => setLiRunning(true)} disabled={liElapsedMs >= LI_MAX_MS} style={btnStyle(dark ? "#444" : "#ccc", ink, liElapsedMs >= LI_MAX_MS ? 0.4 : 1)}>{li.resume}</button>
                 )}
                 <button onClick={liSave} style={btnStyle(liSavedFlash ? "#3CA45C" : pal.accent3, "#1a1a1a", 1)}>{liSavedFlash ? li.saved : li.save}</button>
                 <button onClick={liReset} style={btnStyle(liAccent, "#fff", 1)}>{li.reset}</button>
@@ -448,7 +443,7 @@ export default function PomodoroTimer({ t, pal, dark, theme, notifOn, userId }) 
       )}
 
         {/* About — opens as a modal */}
-        <div style={{ display: "flex", justifyContent: "center" }}>
+        <div style={{ display: "flex", justifyContent: "center", marginTop: 40 }}>
           <button
             onClick={() => setShowAbout(true)}
             style={{
@@ -509,7 +504,7 @@ export default function PomodoroTimer({ t, pal, dark, theme, notifOn, userId }) 
                   <div key={r.ts} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, padding: "10px 12px", background: dark ? "#1e1d16" : "#f0ede2", borderLeft: `3px solid ${accent}` }}>
                     <span style={{ fontSize: 12, opacity: 0.7 }}>{r.date}</span>
                     <span style={{ fontWeight: 800, fontSize: 14 }}>{fmtDur(r.durationMs)}</span>
-                    <button onClick={() => liDeleteRecord(r.ts)} style={{ background: "none", border: "none", cursor: "pointer", color: ink, opacity: 0.3, fontSize: 16, lineHeight: 1 }}>×</button>
+                    <button onClick={() => liDeleteRecord(r.ts)} aria-label="Delete" style={{ background: "none", border: "none", cursor: "pointer", color: "#C7382E", opacity: 0.7, display: "flex", padding: 4 }}><Trash2 size={15} /></button>
                   </div>
                 ))}
               </div>
@@ -538,12 +533,26 @@ function BlockGrid({ label, count, cols, filled, cellH, color, dark, ink }) {
   );
 }
 
-function liNumStyle(dark, ink) {
-  return {
-    width: 64, textAlign: "center", padding: "10px 6px", fontSize: 20, fontWeight: 800,
-    fontFamily: "inherit", border: `1.5px solid ${dark ? "#444" : "#ccc"}`, borderRadius: 8,
-    background: dark ? "#1e1d16" : "#fff", color: ink, outline: "none",
+function TimeStepper({ value, setValue, max, unit, dark, ink, accent }) {
+  const inc = () => setValue((v) => (v >= max ? 0 : v + 1));
+  const dec = () => setValue((v) => (v <= 0 ? max : v - 1));
+  const arrowBtn = {
+    background: "none", border: "none", cursor: "pointer", color: accent,
+    display: "flex", alignItems: "center", justifyContent: "center", padding: 2,
   };
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+      <button onClick={inc} aria-label="up" style={arrowBtn}><ChevronUp size={22} /></button>
+      <div style={{
+        width: 72, textAlign: "center", padding: "8px 0", margin: "2px 0",
+        fontSize: 30, fontWeight: 900, fontVariantNumeric: "tabular-nums",
+        border: `1.5px solid ${dark ? "#444" : "#ccc"}`, borderRadius: 8,
+        background: dark ? "#1e1d16" : "#fff", color: ink, lineHeight: 1,
+      }}>{String(value).padStart(2, "0")}</div>
+      <button onClick={dec} aria-label="down" style={arrowBtn}><ChevronDown size={22} /></button>
+      <span style={{ fontSize: 11, fontWeight: 700, opacity: 0.5, marginTop: 2 }}>{unit}</span>
+    </div>
+  );
 }
 
 function fmtClock(ms) {
