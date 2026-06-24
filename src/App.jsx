@@ -20,6 +20,7 @@ import FloatingBlocks from "./components/FloatingBlocks";
 import GridTutorial from "./components/GridTutorial";
 import PomodoroTimer from "./components/PomodoroTimer";
 import PomodoroGuide from "./components/PomodoroGuide";
+import Planner from "./components/Planner";
 
 function AppShell() {
   const { session, profile, loading, signOut } = useAuth();
@@ -496,11 +497,7 @@ function AppShell() {
             </button>
             <TopControls pal={pal} dark={dark} setDark={setDark} lang={lang} setLang={setLang} theme={theme} setTheme={setTheme} soundOn={soundOn} setSoundOn={setSoundOn} t={t} play={play} music={music} dropdownUp={false} />
           </div>
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "60vh", gap: 16, textAlign: "center" }}>
-            <CalendarDays size={40} color={pal.accent} />
-            <h2 style={{ fontWeight: 900, fontSize: 26, textTransform: "uppercase", margin: 0, color: pal.ink }}>{t.menu.planner}</h2>
-            <p style={{ fontSize: 14, color: pal.ink, opacity: 0.55, margin: 0 }}>{t.comingSoon}</p>
-          </div>
+          <Planner t={t} pal={pal} dark={dark} userId={myId} />
         </div>
       )}
 
