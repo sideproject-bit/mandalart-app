@@ -282,18 +282,13 @@ function AppShell() {
                   textAlign: "center",
                   fontFamily: "Helvetica, Arial, sans-serif",
                 }}>
-                  GRID<span style={{ position: "relative" }}>
-                    A
-                    <span style={{
-                      position: "absolute",
-                      top: "0.62em",
-                      right: "-0.08em",
-                      fontSize: "0.22em",
-                      fontWeight: 900,
-                      lineHeight: 1,
-                      color: "#fff",
-                    }}>●</span>
-                  </span>
+                  GRIDA<span style={{
+                    fontSize: "0.3em",
+                    fontWeight: 900,
+                    verticalAlign: "super",
+                    lineHeight: 0,
+                    color: "#fff",
+                  }}>●</span>
                 </h1>
                 <p className="home-tagline" style={{ fontSize: 11, letterSpacing: isKo ? "0.04em" : "0.1em", opacity: 0.6, margin: "14px 0 0", color: "#fff", textTransform: "uppercase", textAlign: "center" }}>
                   {t.tagline}
