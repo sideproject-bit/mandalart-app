@@ -294,11 +294,8 @@ function AppShell() {
                     {t.tagline}
                   </p>
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 12 }}>
+                <div style={{ display: "flex", justifyContent: "flex-start", alignItems: "flex-end", gap: 12 }}>
                   <TopControls pal={{ ...pal, ink: "#fff" }} dark={dark} setDark={setDark} lang={lang} setLang={setLang} theme={theme} setTheme={setTheme} soundOn={soundOn} setSoundOn={setSoundOn} t={t} play={play} music={music} dropdownUp={true} />
-                  <button onClick={() => { setShowWelcome(true); play("G4", "16n"); }} style={{ background: "none", border: "none", color: "#fff", opacity: 0.5, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, fontSize: 11 }}>
-                    <HelpCircle size={14} /> {t.replay}
-                  </button>
                 </div>
               </div>
 
@@ -338,6 +335,12 @@ function AppShell() {
                     </button>
                   );
                 })}
+
+                {/* Replay guide — bottom corner */}
+                <button onClick={() => { closeMenu(); setShowWelcome(true); play("G4", "16n"); }}
+                  style={{ marginTop: "auto", alignSelf: "flex-start", background: "none", border: "none", color: "#fff", opacity: 0.5, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, fontSize: 11, padding: "16px 24px" }}>
+                  <HelpCircle size={14} /> {t.replay}
+                </button>
               </div>
             </div>
           );
