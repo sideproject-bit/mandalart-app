@@ -286,7 +286,7 @@ function AppShell() {
                     A
                     <span style={{
                       position: "absolute",
-                      top: "0.05em",
+                      top: "0.13em",
                       right: "-0.28em",
                       fontSize: "0.28em",
                       fontWeight: 900,
