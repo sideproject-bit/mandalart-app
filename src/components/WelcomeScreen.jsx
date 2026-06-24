@@ -220,7 +220,7 @@ export default function WelcomeScreen({ play, onFinish }) {
       }}>
         <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
           <span style={{ fontWeight: 900, fontSize: 16, color: "rgba(255,255,255,0.85)", letterSpacing: "-0.02em" }}>
-            MANDALART
+            GRIDA
           </span>
           <span style={{ fontWeight: 400, fontSize: 13, color: "rgba(255,255,255,0.35)" }}>.app</span>
         </div>

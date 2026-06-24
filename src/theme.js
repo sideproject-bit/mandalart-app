@@ -17,6 +17,16 @@ const HOME_BLOCKS = {
   bw:       { title: "#4a4a48", manage: "#6b6b68" },
 };
 
+// Per-theme home feature tiles: [background, text] for planner / mandalart / pomodoro
+const HOME_FEATURES = {
+  mondrian: { planner: ["#1B1A17", "#fff"], mandalart: ["#E3B22E", "#1a1a1a"], pomodoro: ["#C7382E", "#fff"] },
+  blue:     { planner: ["#1B1A17", "#fff"], mandalart: ["#2B3DCB", "#fff"],   pomodoro: ["#5B6BE0", "#fff"] },
+  red:      { planner: ["#1B1A17", "#fff"], mandalart: ["#C7382E", "#fff"],   pomodoro: ["#E0655B", "#fff"] },
+  green:    { planner: ["#1B1A17", "#fff"], mandalart: ["#1F7A4D", "#fff"],   pomodoro: ["#3CA86E", "#fff"] },
+  yellow:   { planner: ["#1B1A17", "#fff"], mandalart: ["#E3B22E", "#1a1a1a"], pomodoro: ["#F0C95A", "#1a1a1a"] },
+  bw:       { planner: ["#2C2C2A", "#fff"], mandalart: ["#6b6b68", "#fff"],   pomodoro: ["#9a9a96", "#1a1a1a"] },
+};
+
 // Per-theme "New Mandalart" button background (text is always dark #1a1a1a)
 export const NEW_BTN_BG = {
   mondrian: "#E3B22E",
@@ -37,5 +47,6 @@ export function paletteFor(theme, dark) {
     accent3: THEMES[theme].accents[2],
     homeTitleBg: blocks.title,
     homeManageBg: blocks.manage,
+    homeFeatures: HOME_FEATURES[theme] ?? HOME_FEATURES.mondrian,
   };
 }

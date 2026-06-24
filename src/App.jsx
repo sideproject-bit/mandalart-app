@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { User, Plus, FolderKanban, HelpCircle, ArrowLeft, BookOpen, Lightbulb } from "lucide-react";
+import { User, Plus, FolderKanban, HelpCircle, ArrowLeft, BookOpen, Lightbulb, Grid3x3, CalendarDays, Timer } from "lucide-react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { paletteFor, THEMES } from "./theme";
 import { T } from "./copy";
@@ -199,87 +199,98 @@ function AppShell() {
       )}
 
       {view === "home" && (() => {
-        const newBg = { mondrian: "#E3B22E", blue: "#dde0ff", red: "#c4956a", green: "#c4956a", yellow: "#C9991A", bw: "#e4e4e0" }[theme] ?? "#E3B22E";
+        const feat = pal.homeFeatures;
+        const featTiles = [
+          { key: "planner",   label: t.menu.planner,   Icon: CalendarDays, bg: feat.planner[0],   fg: feat.planner[1],   go: () => navigateTo("planner"),  note: "G5" },
+          { key: "mandalart", label: t.menu.mandalart, Icon: Grid3x3,      bg: feat.mandalart[0], fg: feat.mandalart[1], go: () => navigateTo("manage"),   note: "B5" },
+          { key: "pomodoro",  label: t.menu.pomodoro,  Icon: Timer,        bg: feat.pomodoro[0],  fg: feat.pomodoro[1],  go: () => navigateTo("pomodoro"), note: "E6" },
+        ];
         return (
-          <div className="home-enter" style={{ margin: -28, height: "100vh", display: "flex", flexDirection: "column", overflow: "hidden" }}>
-            <div style={{
-              flex: 1, minHeight: 0,
-              background: "#000", display: "grid", gap: 4, padding: 4,
-              gridTemplateColumns: "3fr 1fr",
-              gridTemplateRows: "1fr 1fr",
-            }}>
-              {/* Title block — spans both rows */}
-              <div
-                className="home-title-block"
-                onMouseEnter={() => play("C6", "64n")}
-                style={{
-                  gridRow: "1 / 3", gridColumn: "1",
-                  background: pal.homeTitleBg,
-                  padding: "clamp(20px, 4vw, 56px)",
-                  display: "flex", flexDirection: "column", justifyContent: "space-between",
-                  position: "relative",
-                }}
-              >
-                <FloatingBlocks pal={pal} theme={theme} />
-                <div style={{ position: "relative", zIndex: 1 }}>
-                  <h1 className="home-title" style={{
-                    fontWeight: 900,
-                    fontSize: "clamp(60px, 11vw, 180px)",
-                    letterSpacing: "-0.03em",
-                    lineHeight: 0.88,
-                    margin: 0,
-                    color: "#fff",
-                    textTransform: "uppercase",
-                    textAlign: "center",
-                    fontFamily: "Helvetica, Arial, sans-serif",
-                  }}>
-                    {t.title}
-                  </h1>
-                  <p className="home-tagline" style={{ fontSize: 11, letterSpacing: isKo ? "0.04em" : "0.12em", opacity: 0.6, margin: "14px 0 0", color: "#fff", textTransform: "uppercase", textAlign: "center" }}>
-                    {t.tagline}
-                  </p>
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12, position: "relative", zIndex: 1 }}>
-                  <TopControls pal={{ ...pal, ink: "#fff" }} dark={dark} setDark={setDark} lang={lang} setLang={setLang} theme={theme} setTheme={setTheme} soundOn={soundOn} setSoundOn={setSoundOn} t={t} play={play} music={music} dropdownUp={true} />
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 5 }}>
-                    <button onClick={() => { setOnboardingOpen(true); play("G4", "16n"); }} style={{ background: "none", border: "none", color: "#fff", opacity: 0.5, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, fontSize: 11 }}>
-                      <HelpCircle size={14} /> {t.replay}
-                    </button>
-                    <button onClick={() => { setFeatureGuideOpen(true); play("E5", "16n"); }} style={{ background: "none", border: "none", color: "#fff", opacity: 0.5, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, fontSize: 11 }}>
-                      <Lightbulb size={14} /> {t.guide.btnLabel}
-                    </button>
-                  </div>
+          <div className="home-enter" style={{ margin: -28, height: "100vh", overflow: "hidden",
+            background: "#000", display: "grid", gap: 4, padding: 4,
+            gridTemplateColumns: "minmax(60px, 0.5fr) 3.4fr 1.6fr",
+            gridTemplateRows: "minmax(46px, 0.5fr) 2.7fr 0.8fr",
+          }}>
+            {/* Logo — top left */}
+            <div style={{ gridRow: "1", gridColumn: "1", background: pal.bg, display: "flex", alignItems: "center", justifyContent: "center", padding: 8 }}>
+              <img src="/logo.png" alt="GridA" style={{ width: "100%", maxWidth: 46, display: "block" }} />
+            </div>
+            {/* Top breathing-room bands */}
+            <div style={{ gridRow: "1", gridColumn: "2", background: pal.bg }} />
+            <div style={{ gridRow: "1", gridColumn: "3", background: pal.bg }} />
+            {/* Left breathing-room band */}
+            <div style={{ gridRow: "2", gridColumn: "1", background: pal.bg }} />
+
+            {/* Hero title block */}
+            <div
+              className="home-title-block"
+              onMouseEnter={() => play("C6", "64n")}
+              style={{
+                gridRow: "2", gridColumn: "2",
+                background: pal.homeTitleBg,
+                padding: "clamp(20px, 3.5vw, 52px)",
+                display: "flex", flexDirection: "column", justifyContent: "space-between",
+                position: "relative", overflow: "hidden",
+              }}
+            >
+              <FloatingBlocks pal={pal} theme={theme} />
+              <div style={{ position: "relative", zIndex: 1, flex: 1, display: "flex", flexDirection: "column", justifyContent: "center" }}>
+                <h1 className="home-title" style={{
+                  fontWeight: 900,
+                  fontSize: "clamp(52px, 9vw, 150px)",
+                  letterSpacing: "-0.03em",
+                  lineHeight: 0.88,
+                  margin: 0,
+                  color: "#fff",
+                  textTransform: "uppercase",
+                  textAlign: "center",
+                  fontFamily: "Helvetica, Arial, sans-serif",
+                }}>
+                  {t.title}
+                </h1>
+                <p className="home-tagline" style={{ fontSize: 11, letterSpacing: isKo ? "0.04em" : "0.1em", opacity: 0.6, margin: "14px 0 0", color: "#fff", textTransform: "uppercase", textAlign: "center" }}>
+                  {t.tagline}
+                </p>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12, position: "relative", zIndex: 1 }}>
+                <TopControls pal={{ ...pal, ink: "#fff" }} dark={dark} setDark={setDark} lang={lang} setLang={setLang} theme={theme} setTheme={setTheme} soundOn={soundOn} setSoundOn={setSoundOn} t={t} play={play} music={music} dropdownUp={true} />
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 5 }}>
+                  <button onClick={() => { setOnboardingOpen(true); play("G4", "16n"); }} style={{ background: "none", border: "none", color: "#fff", opacity: 0.5, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, fontSize: 11 }}>
+                    <HelpCircle size={14} /> {t.replay}
+                  </button>
+                  <button onClick={() => { setFeatureGuideOpen(true); play("E5", "16n"); }} style={{ background: "none", border: "none", color: "#fff", opacity: 0.5, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, fontSize: 11 }}>
+                    <Lightbulb size={14} /> {t.guide.btnLabel}
+                  </button>
                 </div>
               </div>
-
-              {/* Profile — top right */}
-              <button onClick={() => { navigateTo("profile"); play("C5", "16n"); }} onMouseEnter={() => play("E6", "64n")}
-                className="home-tile"
-                style={{ gridRow: "1", gridColumn: "2", background: pal.bg, border: "none", padding: "clamp(16px,2.5vw,32px) 20px", cursor: "pointer", color: pal.ink, textAlign: "left", display: "flex", flexDirection: "column", gap: 10 }}>
-                <User size={20} color={pal.ink} />
-                <span style={{ fontWeight: 800, fontSize: 13, textTransform: "uppercase" }}>{t.menu.profile}</span>
-              </button>
-
-              {/* New Mandalart — always yellow, bottom right */}
-              <button onClick={goCreate} onMouseEnter={() => play("G6", "64n")}
-                className="home-tile"
-                style={{ gridRow: "2", gridColumn: "2", background: newBg, border: "none", padding: "clamp(16px,2.5vw,32px) 20px", cursor: "pointer", color: "#1a1a1a", textAlign: "left", display: "flex", flexDirection: "column", gap: 10 }}>
-                <Plus size={20} color="#1a1a1a" />
-                <span style={{ fontWeight: 800, fontSize: 13, textTransform: "uppercase" }}>{t.menu.create}</span>
-              </button>
             </div>
 
-            {/* Bottom bar */}
-            <div style={{ background: "#000", display: "grid", gap: 4, padding: "0 4px 4px", gridTemplateColumns: "1fr 1fr", flexShrink: 0 }}>
-              <button onClick={() => { navigateTo("manage"); play("C5", "16n"); }} onMouseEnter={() => play("A5", "64n")}
+            {/* Feature column — Planner / Mandalart / Pomodoro */}
+            <div style={{ gridRow: "2 / 4", gridColumn: "3", display: "flex", flexDirection: "column", gap: 4, background: "#000", minHeight: 0 }}>
+              {featTiles.map(({ key, label, Icon, bg, fg, go, note }) => (
+                <button key={key} onClick={() => { go(); play("C5", "16n"); }} onMouseEnter={() => play(note, "64n")}
+                  className="home-tile"
+                  style={{ flex: 1, minHeight: 0, background: bg, border: "none", padding: "clamp(14px,2vw,26px) 20px", cursor: "pointer", color: fg, textAlign: "left", display: "flex", flexDirection: "column", justifyContent: "flex-end", gap: 10 }}>
+                  <Icon size={20} color={fg} />
+                  <span style={{ fontWeight: 800, fontSize: 14, textTransform: "uppercase", letterSpacing: "0.02em" }}>{label}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* Bottom-left margin tile */}
+            <div style={{ gridRow: "3", gridColumn: "1", background: pal.ink }} />
+
+            {/* Bottom bar — Profile / About */}
+            <div style={{ gridRow: "3", gridColumn: "2", display: "grid", gap: 4, background: "#000", gridTemplateColumns: "1fr 1fr", minHeight: 0 }}>
+              <button onClick={() => { navigateTo("profile"); play("C5", "16n"); }} onMouseEnter={() => play("A5", "64n")}
                 className="home-tile"
-                style={{ background: pal.homeManageBg, border: "none", padding: "18px 24px", cursor: "pointer", color: "#fff", textAlign: "left", display: "flex", alignItems: "center", gap: 12 }}>
-                <FolderKanban size={18} color="#fff" />
-                <span style={{ fontWeight: 800, fontSize: 13, textTransform: "uppercase" }}>{t.menu.manage}</span>
+                style={{ background: pal.homeManageBg, border: "none", padding: "16px 22px", cursor: "pointer", color: "#fff", textAlign: "left", display: "flex", alignItems: "center", gap: 12 }}>
+                <User size={18} color="#fff" />
+                <span style={{ fontWeight: 800, fontSize: 13, textTransform: "uppercase" }}>{t.menu.setting}</span>
               </button>
               <button onClick={() => { navigateTo("about"); play("G4", "16n"); }} onMouseEnter={() => play("B5", "64n")}
                 className="home-tile"
-                style={{ background: pal.bg, border: "none", padding: "18px 24px", cursor: "pointer", color: pal.ink, textAlign: "left", display: "flex", alignItems: "center", gap: 12 }}>
+                style={{ background: pal.bg, border: "none", padding: "16px 22px", cursor: "pointer", color: pal.ink, textAlign: "left", display: "flex", alignItems: "center", gap: 12 }}>
                 <BookOpen size={18} color={pal.ink} />
                 <span style={{ fontWeight: 800, fontSize: 13, textTransform: "uppercase", opacity: 0.65 }}>{t.menu.about}</span>
               </button>
@@ -471,6 +482,24 @@ function AppShell() {
             <TopControls pal={pal} dark={dark} setDark={setDark} lang={lang} setLang={setLang} theme={theme} setTheme={setTheme} soundOn={soundOn} setSoundOn={setSoundOn} t={t} play={play} music={music} dropdownUp={false} />
           </div>
           <AboutPage pal={pal} t={t} />
+        </div>
+      )}
+
+      {(view === "planner" || view === "pomodoro") && (
+        <div className="fade-in">
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 18, flexWrap: "wrap", gap: 10 }}>
+            <button onClick={() => navigateTo("home")} style={{ background: "none", border: "none", color: pal.ink, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, fontSize: 12 }}>
+              <ArrowLeft size={14} /> {t.back}
+            </button>
+            <TopControls pal={pal} dark={dark} setDark={setDark} lang={lang} setLang={setLang} theme={theme} setTheme={setTheme} soundOn={soundOn} setSoundOn={setSoundOn} t={t} play={play} music={music} dropdownUp={false} />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "60vh", gap: 16, textAlign: "center" }}>
+            {view === "planner" ? <CalendarDays size={40} color={pal.accent} /> : <Timer size={40} color={pal.accent} />}
+            <h2 style={{ fontWeight: 900, fontSize: 26, textTransform: "uppercase", margin: 0, color: pal.ink }}>
+              {view === "planner" ? t.menu.planner : t.menu.pomodoro}
+            </h2>
+            <p style={{ fontSize: 14, color: pal.ink, opacity: 0.55, margin: 0 }}>{t.comingSoon}</p>
+          </div>
         </div>
       )}
 

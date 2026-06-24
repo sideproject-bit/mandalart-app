@@ -1,9 +1,10 @@
 export const T = {
   en: {
-    title: "MANDALART",
-    tagline: "ONE GOAL. EIGHT PATHS. SIXTY-FOUR STEPS.",
+    title: "GRIDA",
+    tagline: "COMPOSITION WITH YOUR DAY, YEAR, AND LIFE",
     loading: "Loading…",
-    menu: { profile: "Profile", create: "New Mandalart", manage: "Manage", about: "What is Mandalart?" },
+    comingSoon: "Coming soon — this feature is on the way.",
+    menu: { profile: "Profile", create: "New Mandalart", manage: "Manage", about: "About GridA", mandalart: "Mandalart", planner: "Planner", pomodoro: "Pomodoro timer", setting: "Profile · Settings" },
     back: "Back",
     replay: "Replay guide",
     categories: "Suggested categories",
@@ -199,10 +200,11 @@ export const T = {
     sound: "Sound", lang: "Language", theme: "Theme", dark: "Dark", light: "Light",
   },
   ko: {
-    title: "MANDALART",
-    tagline: "하나의 큰 목표. 8개의 소목표. 64개의 실행 방안.",
+    title: "GRIDA",
+    tagline: "하루와 일 년, 그리고 인생을 그리다",
     loading: "불러오는 중…",
-    menu: { profile: "프로필", create: "새 만다라트", manage: "만다라트 관리", about: "만다라트란?" },
+    comingSoon: "곧 만나요 — 준비 중인 기능이에요.",
+    menu: { profile: "프로필", create: "새 만다라트", manage: "만다라트 관리", about: "그리다 소개", mandalart: "만다라트", planner: "플래너", pomodoro: "뽀모도로 타이머", setting: "프로필 · 설정" },
     back: "뒤로",
     replay: "가이드 다시 보기",
     categories: "추천 카테고리",
