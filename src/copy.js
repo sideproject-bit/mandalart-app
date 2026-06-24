@@ -167,6 +167,17 @@ export const T = {
       showAgain: "Show tutorial",
       close: "Got it, let's go",
     },
+    pomodoroGuide: {
+      steps: [
+        { t: "Set your focus time", b: "Drag across the grid to set your session length. Each cell is 1 minute — up to 45 minutes total. You can adjust it any time before starting." },
+        { t: "Name your focus", b: "Type what you're working on in the goal field at the top. Naming your focus makes it real and keeps you anchored during the session." },
+        { t: "Watch time flow", b: "Press Start and watch the grid drain in real time. The active cell empties smoothly as seconds pass, then disappears when the minute is up." },
+        { t: "Rest for real", b: "When the timer ends, you'll hear a sound and get a notification. Step away. Don't skip the break — rest is part of the system." },
+      ],
+      dontShow: "Don't show this when entering Pomodoro",
+      showAgain: "Show guide",
+      close: "Let's focus",
+    },
     music: { off: "Off", loopNote: "Loops until stopped" },
     guide: {
       btnLabel: "How to use",
@@ -395,6 +406,17 @@ export const T = {
       dontShow: "다음부터 자동으로 표시 안 함",
       showAgain: "튜토리얼 보기",
       close: "시작하기",
+    },
+    pomodoroGuide: {
+      steps: [
+        { t: "집중 시간 설정", b: "격자 위를 드래그해서 세션 시간을 정해요. 칸 하나가 1분이고, 최대 45분까지 설정할 수 있어요. 시작 전이라면 언제든 조정 가능해요." },
+        { t: "집중 대상 입력", b: "상단 입력칸에 지금 할 일을 적어요. 집중 대상을 명확히 쓰는 것만으로도 세션 중 흔들리지 않는 데 도움이 돼요." },
+        { t: "시간이 흐르는 걸 봐요", b: "시작을 누르면 격자가 실시간으로 줄어들어요. 현재 진행 중인 칸은 초 단위로 천천히 비워지고, 1분이 지나면 사라져요." },
+        { t: "진짜 쉬어요", b: "타이머가 끝나면 소리와 알림으로 알려드려요. 그 자리를 떠나세요. 휴식을 건너뛰지 마세요 — 쉬는 것도 집중의 일부예요." },
+      ],
+      dontShow: "뽀모도로 진입 시 자동으로 표시 안 함",
+      showAgain: "가이드 보기",
+      close: "집중 시작",
     },
     music: { off: "끄기", loopNote: "정지할 때까지 반복 재생" },
     guide: {
