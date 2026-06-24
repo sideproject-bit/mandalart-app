@@ -54,11 +54,6 @@ export default function PlannerDaily({ t, pal, dark, editMode, events, onEventsC
     return () => clearInterval(id);
   }, []);
 
-  // Scroll to current hour on mount
-  useEffect(() => {
-    const hour = new Date().getHours();
-    window.scrollTo({ top: Math.max(0, (HEADER_H + hour * CELL_H) - 160), behavior: "smooth" });
-  }, []);
 
   // --- Drag / pointer logic ---
   function getCellAt(clientX, clientY) {
@@ -158,13 +153,12 @@ export default function PlannerDaily({ t, pal, dark, editMode, events, onEventsC
     }
   }
 
-  // Mondrian column header style
   function colHeader(monColor) {
-    if (!isMon) return { fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", opacity: 0.4, marginBottom: 8 };
+    const bg = isMon ? monColor : acc;
     return {
       fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em",
-      marginBottom: 8, background: monColor, color: "#fff",
-      padding: "4px 8px", display: "inline-block",
+      marginBottom: 8, background: bg, color: isMon && monColor === MON.yellow ? "#1a1a1a" : "#fff",
+      padding: "4px 8px", display: "inline-block", borderRadius: 3,
     };
   }
 
@@ -260,7 +254,7 @@ export default function PlannerDaily({ t, pal, dark, editMode, events, onEventsC
 
         {/* ── To-do ── */}
         <div>
-          <div style={{ ...colHeader(MON.yellow), color: isMon ? "#1a1a1a" : undefined }}>{pl.todoCol}</div>
+          <div style={colHeader(MON.yellow)}>{pl.todoCol}</div>
           {editMode && (
             <form onSubmit={addTodo} style={{ display: "flex", gap: 6, marginBottom: 10 }}>
               <input
