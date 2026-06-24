@@ -208,6 +208,7 @@ export const T = {
       close: "Got it, let's go",
     },
     planner: {
+      resetNote: "Time blocks and events reset at midnight each day.",
       tabDaily: "Daily", tabMonthly: "Monthly",
       viewModeBtn: "View mode", editModeBtn: "Edit mode",
       timeBlocks: "Time blocks", eventsCol: "Events", todoCol: "To-do",
@@ -518,6 +519,7 @@ export const T = {
       close: "시작하기",
     },
     planner: {
+      resetNote: "타임 블록과 일정은 매 자정에 초기화돼요.",
       tabDaily: "일일", tabMonthly: "월간",
       viewModeBtn: "보기 모드", editModeBtn: "편집 모드",
       timeBlocks: "타임 블록", eventsCol: "일정", todoCol: "할 일",

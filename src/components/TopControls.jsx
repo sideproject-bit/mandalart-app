@@ -17,7 +17,7 @@ const BOX = (color, active = false, bare = false) => {
   };
 };
 
-export default function TopControls({ pal, dark, setDark, lang, setLang, theme, setTheme, soundOn, setSoundOn, t, play, music, dropdownUp = false }) {
+export default function TopControls({ pal, dark, setDark, lang, setLang, theme, setTheme, soundOn, setSoundOn, t, play, music, dropdownUp = false, onHome }) {
   const [themeOpen, setThemeOpen] = useState(false);
   const [musicOpen, setMusicOpen] = useState(false);
   const dropdownInk = pal.bg === "#F4F0E4" ? "#1B1A17" : "#F2EDE1";
@@ -123,6 +123,13 @@ export default function TopControls({ pal, dark, setDark, lang, setLang, theme, 
           </div>
         )}
       </div>
+
+      {/* Logo — rightmost, only on non-home screens */}
+      {onHome && (
+        <button onClick={onHome} title="Home" style={{ ...BOX(ink, false, bare), padding: 6 }}>
+          <img src="/logo.png" alt="GridA" style={{ width: 26, height: 26, objectFit: "contain" }} />
+        </button>
+      )}
     </div>
   );
 }

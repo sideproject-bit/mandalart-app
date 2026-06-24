@@ -165,8 +165,11 @@ export default function PlannerDaily({ t, pal, dark, editMode, events, onEventsC
   return (
     <div>
       {/* Date */}
-      <div style={{ fontSize: 13, fontWeight: 700, opacity: 0.5, marginBottom: 18 }}>
-        {new Date().toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12, marginBottom: 18, flexWrap: "wrap" }}>
+        <div style={{ fontSize: 13, fontWeight: 700, opacity: 0.5 }}>
+          {new Date().toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+        </div>
+        <div style={{ fontSize: 11, opacity: 0.3, fontStyle: "italic" }}>{pl.resetNote}</div>
       </div>
 
       {/* 3-column layout */}
