@@ -11,6 +11,7 @@ import TopControls from "./components/TopControls";
 import MandalartGrid from "./components/MandalartGrid";
 import Manage from "./components/Manage";
 import AboutPage from "./components/AboutPage";
+import MandalartAboutPage from "./components/MandalartAboutPage";
 import FriendsPanel from "./components/FriendsPanel";
 import FriendMandalartList from "./components/FriendMandalartList";
 import { createMandalart } from "./api/mandalartsApi";
@@ -332,9 +333,14 @@ function AppShell() {
       {view === "manage" && (
         <div className="fade-in">
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 18, flexWrap: "wrap", gap: 10 }}>
-            <button onClick={() => navigateTo("home")} style={{ background: "none", border: "none", color: pal.ink, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, fontSize: 12 }}>
-              <ArrowLeft size={14} /> {t.back}
-            </button>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <button onClick={() => navigateTo("home")} style={{ background: "none", border: "none", color: pal.ink, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, fontSize: 12 }}>
+                <ArrowLeft size={14} /> {t.back}
+              </button>
+              <button onClick={() => navigateTo("mandalart-about")} style={{ background: "none", border: "none", color: pal.ink, opacity: 0.4, cursor: "pointer", display: "flex", alignItems: "center", gap: 5, fontSize: 11 }}>
+                <HelpCircle size={13} /> {t.mandalartAbout.btn}
+              </button>
+            </div>
             <TopControls pal={pal} dark={dark} setDark={setDark} lang={lang} setLang={setLang} theme={theme} setTheme={setTheme} soundOn={soundOn} setSoundOn={setSoundOn} t={t} play={play} music={music} dropdownUp={false} />
           </div>
           <Manage
@@ -494,7 +500,19 @@ function AppShell() {
             </button>
             <TopControls pal={pal} dark={dark} setDark={setDark} lang={lang} setLang={setLang} theme={theme} setTheme={setTheme} soundOn={soundOn} setSoundOn={setSoundOn} t={t} play={play} music={music} dropdownUp={false} />
           </div>
-          <AboutPage pal={pal} t={t} />
+          <AboutPage pal={pal} t={t} dark={dark} />
+        </div>
+      )}
+
+      {view === "mandalart-about" && (
+        <div className="fade-in">
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 18, flexWrap: "wrap", gap: 10 }}>
+            <button onClick={() => navigateTo("manage")} style={{ background: "none", border: "none", color: pal.ink, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, fontSize: 12 }}>
+              <ArrowLeft size={14} /> {t.back}
+            </button>
+            <TopControls pal={pal} dark={dark} setDark={setDark} lang={lang} setLang={setLang} theme={theme} setTheme={setTheme} soundOn={soundOn} setSoundOn={setSoundOn} t={t} play={play} music={music} dropdownUp={false} />
+          </div>
+          <MandalartAboutPage pal={pal} t={t} />
         </div>
       )}
 

@@ -130,7 +130,7 @@ export const T = {
       { t: "Make it yours", b: "Switch themes, toggle dark mode, play music while you write, and tag related cells to jump between them." },
       { t: "Ready", b: "Open a blank grid and place your first goal in the center." },
     ],
-    about: {
+    mandalartAbout: {
       title: "What is Mandalart?",
       body: [
         "A Mandalart is a 9×9 grid goal-setting technique built around one central goal, broken into 8 sub-goals, each of which is further broken into 8 concrete action items. It originated in Japan in the 1980s and became widely known after baseball player Shohei Ohtani's own Mandalart from his high school years was publicized.",
@@ -152,6 +152,35 @@ export const T = {
       ohtaniGridLabel: "Ohtani's actual Mandalart",
       ohtaniGridCaption: "Goal: be drafted #1 by all 8 pro teams. 8 sub-goals, 64 daily habits.",
       ohtaniGridCta: "Use this as a reference — then start filling in your own.",
+      btn: "What is Mandalart?",
+    },
+    about: {
+      title: "About GridA",
+      intro: "One philosophy. Three tools. A complete system for living intentionally.",
+      philosophy: {
+        title: "The Grid Philosophy",
+        body: "Inspired by Piet Mondrian's De Stijl — which reduced all of painting to grids, primary colors, and black lines — GridA reduces the complexity of life to its essential structure. Goals, time, and focus: each expressed as a grid, each designed to be filled in one cell at a time.",
+      },
+      features: [
+        {
+          tag: "Mandalart",
+          title: "Your life in 81 cells",
+          body: "Define one central goal. Break it into 8 sub-goals. Break each into 8 concrete actions. The result is a complete map from vision to daily habit — everything visible at once, nothing left vague.",
+          benefits: ["Clarifies what truly matters", "Aligns big goals with daily actions", "Makes abstract ambitions concrete and visible"],
+        },
+        {
+          tag: "Planner",
+          title: "Your day in 144 blocks",
+          body: "Every day has 144 ten-minute blocks. Map them intentionally — mark time blocks as you work, log events, manage todos. See exactly where your hours go and close the gap between what you planned and what actually happened.",
+          benefits: ["Builds honest awareness of how time is spent", "Reduces decision fatigue throughout the day", "Bridges long-term goals with today's schedule"],
+        },
+        {
+          tag: "Pomodoro",
+          title: "Your focus, one cell at a time",
+          body: "Name what you're working on. Set your duration. Watch the grid drain. Structured focus intervals with real rest between them — the proven method for deep, sustained work without burning out.",
+          benefits: ["Trains single-task concentration", "Makes work sessions feel finite and achievable", "Builds momentum through small, visible completions"],
+        },
+      ],
     },
     gridTutorial: {
       steps: [
@@ -400,7 +429,7 @@ export const T = {
       { t: "내 스타일로", b: "테마와 다크모드를 바꾸고, 음악을 틀고, 연결된 칸을 태그해서 바로 이동해보세요." },
       { t: "시작할 준비 됐어요", b: "빈 그리드 중앙에 첫 번째 목표를 적어보세요." },
     ],
-    about: {
+    mandalartAbout: {
       title: "만다라트란?",
       body: [
         "만다라트는 하나의 핵심 목표를 중심에 두고, 그것을 이루기 위한 8개의 하위 목표, 그리고 각 하위 목표를 다시 8개의 구체적인 실행 항목으로 쪼개는 9×9 격자 형태의 목표 설정 기법이에요. 1980년대 일본에서 만들어졌고, 야구선수 오타니 쇼헤이가 고교 시절 작성한 만다라트가 알려지면서 널리 퍼졌어요.",
@@ -422,6 +451,35 @@ export const T = {
       ohtaniGridLabel: "오타니의 실제 만다라트 (고교 시절)",
       ohtaniGridCaption: "목표: 8개 구단 드래프트 1순위 지명. 8개 하위 목표, 64가지 일상 습관.",
       ohtaniGridCta: "이 만다라트를 참고해서, 나만의 만다라트를 작성해보세요.",
+      btn: "만다라트란?",
+    },
+    about: {
+      title: "그리다 소개",
+      intro: "하나의 철학. 세 가지 도구. 의도적으로 살기 위한 완전한 시스템.",
+      philosophy: {
+        title: "격자의 철학",
+        body: "몬드리안의 신조형주의(De Stijl)는 회화의 모든 것을 격자와 원색, 검은 선으로 환원했어요. 그리다는 같은 방식으로 삶의 복잡함을 그 본질적인 구조로 환원합니다. 목표, 시간, 집중 — 각각을 격자로 표현하고, 한 칸씩 채워나가도록 설계했어요.",
+      },
+      features: [
+        {
+          tag: "만다라트",
+          title: "81칸에 담은 내 인생",
+          body: "하나의 핵심 목표를 정하세요. 이를 8개의 하위 목표로 쪼개고, 각 하위 목표를 다시 8개의 구체적인 행동으로 나누세요. 비전부터 일상 습관까지의 전체 지도가 한눈에 보여요. 막연한 것은 하나도 없어요.",
+          benefits: ["진짜 중요한 것을 명확히 합니다", "큰 목표와 일상의 행동을 연결합니다", "추상적인 꿈을 눈에 보이는 계획으로 만들어줍니다"],
+        },
+        {
+          tag: "플래너",
+          title: "144칸에 담은 내 하루",
+          body: "하루는 144개의 10분 블록으로 이루어져 있어요. 타임 블록·일정·할 일을 한 화면에서 의도적으로 채워보세요. 내 시간이 어디로 가는지 정확히 보이고, 계획과 실제 사이의 간극도 보여요.",
+          benefits: ["시간이 어떻게 쓰이는지 솔직하게 인식하게 합니다", "하루 종일 의사결정 피로를 줄여줍니다", "장기 목표와 오늘의 일정을 연결합니다"],
+        },
+        {
+          tag: "뽀모도로",
+          title: "지금 이 순간, 한 칸씩",
+          body: "지금 하는 일을 적으세요. 시간을 설정하세요. 격자가 줄어드는 것을 지켜보세요. 집중 인터벌과 진짜 휴식을 번갈아 반복하는 것 — 지치지 않고 깊게 일하는 검증된 방법이에요.",
+          benefits: ["단일 과제 집중력을 키웁니다", "작업 시간을 유한하고 달성 가능하게 만들어줍니다", "작은 완료의 반복으로 추진력을 만들어줍니다"],
+        },
+      ],
     },
     gridTutorial: {
       steps: [
