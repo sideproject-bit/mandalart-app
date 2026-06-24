@@ -285,7 +285,7 @@ function AppShell() {
                   GRIDA<span style={{
                     fontSize: "0.3em",
                     fontWeight: 900,
-                    verticalAlign: "super",
+                    verticalAlign: "0.6em",
                     lineHeight: 0,
                     color: "#fff",
                   }}>●</span>
