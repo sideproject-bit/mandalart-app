@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const EVENT_COLORS = ["#C7382E", "#2B3DCB", "#E3B22E", "#1F7A4D", "#9B59B6", "#E86E50"];
+const EVENT_COLORS = ["#FFAAAA", "#FFE599", "#AAD4FF", "#C7382E", "#C8960A", "#1A2A9E"];
 
 function timeToCell(timeStr) {
   const [h, m] = timeStr.split(":").map(Number);
@@ -109,7 +109,7 @@ export default function PlannerMonthly({ t, pal, dark, calEvents, onCalEventsCha
   };
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 280px", gap: 24, alignItems: "start" }}>
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 260px", gap: 28, alignItems: "start" }}>
 
       {/* ── Calendar ── */}
       <div>
@@ -141,7 +141,7 @@ export default function PlannerMonthly({ t, pal, dark, calEvents, onCalEventsCha
               <div key={i}
                 onClick={() => setSelectedDay(d === selectedDay ? null : d)}
                 style={{
-                  height: 46, borderRadius: 4, cursor: "pointer",
+                  height: 64, borderRadius: 4, cursor: "pointer",
                   display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
                   background: isSelected ? acc : isToday ? acc + "22" : "transparent",
                   border: `1px solid ${isSelected ? acc : border}`,

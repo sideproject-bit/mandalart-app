@@ -7,7 +7,7 @@ const COLS     = 6;
 const ROWS     = 24;
 const TOTAL    = ROWS * COLS; // 144
 
-const EVENT_COLORS = ["#C7382E", "#2B3DCB", "#E3B22E", "#1F7A4D", "#9B59B6", "#E86E50"];
+const EVENT_COLORS = ["#FFAAAA", "#FFE599", "#AAD4FF", "#C7382E", "#C8960A", "#1A2A9E"];
 
 function cellToTime(idx) {
   const h = Math.floor(idx / COLS);
@@ -172,7 +172,7 @@ export default function PlannerDaily({ t, pal, dark, editMode, events, onEventsC
       </div>
 
       {/* 3-column layout */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 240px 210px", gap: 20, alignItems: "start" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "minmax(0,0.5fr) minmax(0,1fr) minmax(0,1fr)", gap: 20, alignItems: "start" }}>
 
         {/* ── Time Block Grid ── */}
         <div>

@@ -50,24 +50,31 @@ export default function Planner({ t, pal, dark, userId }) {
 
   return (
     <div style={{ color: ink, fontFamily: "inherit" }}>
-      {/* Tab bar */}
-      <div style={{ display: "flex", alignItems: "center", borderBottom: `1px solid ${border}`, marginBottom: 20 }}>
-        {[["daily", pl.tabDaily], ["monthly", pl.tabMonthly]].map(([key, label]) => (
-          <button key={key} onClick={() => setTab(key)} style={{
-            background: "none", border: "none", cursor: "pointer",
-            fontFamily: "inherit", fontWeight: tab === key ? 800 : 400,
-            fontSize: 13, padding: "8px 14px", marginBottom: -1,
-            color: tab === key ? accent : ink,
-            borderBottom: tab === key ? `2px solid ${accent}` : "2px solid transparent",
-            textTransform: "uppercase", letterSpacing: "0.04em",
-          }}>{label}</button>
-        ))}
-        <div style={{ flex: 1 }} />
+      {/* Tab bar — segmented control */}
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 24 }}>
+        <div style={{
+          display: "flex", gap: 2,
+          background: dark ? "#1e1d16" : "#e4e1d6",
+          borderRadius: 8, padding: 3,
+        }}>
+          {[["daily", pl.tabDaily], ["monthly", pl.tabMonthly]].map(([key, label]) => (
+            <button key={key} onClick={() => setTab(key)} style={{
+              background: tab === key ? accent : "transparent",
+              color: tab === key ? "#fff" : ink,
+              border: "none", borderRadius: 6,
+              padding: "6px 18px", fontWeight: 700, fontSize: 12,
+              cursor: "pointer", fontFamily: "inherit",
+              textTransform: "uppercase", letterSpacing: "0.04em",
+              transition: "background 0.15s, color 0.15s",
+              opacity: tab === key ? 1 : 0.55,
+            }}>{label}</button>
+          ))}
+        </div>
         {tab === "daily" && (
           <button onClick={() => setEditMode(v => !v)} style={{
             background: "none", border: `1px solid ${border}`,
             borderRadius: 6, cursor: "pointer", fontFamily: "inherit",
-            fontSize: 11, padding: "4px 10px", color: ink, fontWeight: 600, marginBottom: 4,
+            fontSize: 11, padding: "5px 11px", color: ink, fontWeight: 600,
           }}>
             {editMode ? pl.viewModeBtn : pl.editModeBtn}
           </button>
