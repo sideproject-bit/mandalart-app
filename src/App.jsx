@@ -18,6 +18,7 @@ import { supabase } from "./lib/supabaseClient";
 import FeatureGuide from "./components/FeatureGuide";
 import FloatingBlocks from "./components/FloatingBlocks";
 import GridTutorial from "./components/GridTutorial";
+import PomodoroTimer from "./components/PomodoroTimer";
 
 function AppShell() {
   const { session, profile, loading, signOut } = useAuth();
@@ -478,7 +479,7 @@ function AppShell() {
         </div>
       )}
 
-      {(view === "planner" || view === "pomodoro") && (
+      {view === "planner" && (
         <div className="fade-in">
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 18, flexWrap: "wrap", gap: 10 }}>
             <button onClick={() => navigateTo("home")} style={{ background: "none", border: "none", color: pal.ink, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, fontSize: 12 }}>
@@ -487,12 +488,22 @@ function AppShell() {
             <TopControls pal={pal} dark={dark} setDark={setDark} lang={lang} setLang={setLang} theme={theme} setTheme={setTheme} soundOn={soundOn} setSoundOn={setSoundOn} t={t} play={play} music={music} dropdownUp={false} />
           </div>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "60vh", gap: 16, textAlign: "center" }}>
-            {view === "planner" ? <CalendarDays size={40} color={pal.accent} /> : <Timer size={40} color={pal.accent} />}
-            <h2 style={{ fontWeight: 900, fontSize: 26, textTransform: "uppercase", margin: 0, color: pal.ink }}>
-              {view === "planner" ? t.menu.planner : t.menu.pomodoro}
-            </h2>
+            <CalendarDays size={40} color={pal.accent} />
+            <h2 style={{ fontWeight: 900, fontSize: 26, textTransform: "uppercase", margin: 0, color: pal.ink }}>{t.menu.planner}</h2>
             <p style={{ fontSize: 14, color: pal.ink, opacity: 0.55, margin: 0 }}>{t.comingSoon}</p>
           </div>
+        </div>
+      )}
+
+      {view === "pomodoro" && (
+        <div className="fade-in">
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 18, flexWrap: "wrap", gap: 10 }}>
+            <button onClick={() => navigateTo("home")} style={{ background: "none", border: "none", color: pal.ink, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, fontSize: 12 }}>
+              <ArrowLeft size={14} /> {t.back}
+            </button>
+            <TopControls pal={pal} dark={dark} setDark={setDark} lang={lang} setLang={setLang} theme={theme} setTheme={setTheme} soundOn={soundOn} setSoundOn={setSoundOn} t={t} play={play} music={music} dropdownUp={false} />
+          </div>
+          <PomodoroTimer t={t} pal={pal} dark={dark} />
         </div>
       )}
 
