@@ -200,8 +200,14 @@ function AppShell() {
 
       {view === "home" && (() => {
         const feat = pal.homeFeatures;
+        // Planner tile inverts with dark/light: dark→black bg, light→white bg
+        const plannerBg = dark ? feat.planner[0] : "#fff";
+        const plannerFg = dark ? feat.planner[1] : "#1B1A17";
+        // Profile button inverts: dark→white bg, light→black bg
+        const profileBg = dark ? "#fff" : "#1B1A17";
+        const profileFg = dark ? "#1B1A17" : "#fff";
         const featTiles = [
-          { key: "planner",   label: t.menu.planner,   Icon: CalendarDays, bg: feat.planner[0],   fg: feat.planner[1],   go: () => navigateTo("planner"),  note: "G5" },
+          { key: "planner",   label: t.menu.planner,   Icon: CalendarDays, bg: plannerBg,          fg: plannerFg,          go: () => navigateTo("planner"),  note: "G5" },
           { key: "mandalart", label: t.menu.mandalart, Icon: Grid3x3,      bg: feat.mandalart[0], fg: feat.mandalart[1], go: () => navigateTo("manage"),   note: "B5" },
           { key: "pomodoro",  label: t.menu.pomodoro,  Icon: Timer,        bg: feat.pomodoro[0],  fg: feat.pomodoro[1],  go: () => navigateTo("pomodoro"), note: "E6" },
         ];
@@ -225,26 +231,19 @@ function AppShell() {
             >
               <FloatingBlocks pal={pal} theme={theme} />
               <div style={{ position: "relative", zIndex: 1, flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
-                <div className="home-title" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "clamp(12px, 2vw, 32px)" }}>
-                  <img
-                    src="/logo.png"
-                    alt=""
-                    aria-hidden="true"
-                    style={{ height: "clamp(52px, 8vw, 130px)", width: "auto", display: "block", flexShrink: 0 }}
-                  />
-                  <h1 style={{
-                    fontWeight: 900,
-                    fontSize: "clamp(52px, 9vw, 150px)",
-                    letterSpacing: "-0.03em",
-                    lineHeight: 0.88,
-                    margin: 0,
-                    color: "#fff",
-                    textTransform: "uppercase",
-                    fontFamily: "Helvetica, Arial, sans-serif",
-                  }}>
-                    {t.title}
-                  </h1>
-                </div>
+                <h1 className="home-title" style={{
+                  fontWeight: 900,
+                  fontSize: "clamp(52px, 9vw, 150px)",
+                  letterSpacing: "-0.03em",
+                  lineHeight: 0.88,
+                  margin: 0,
+                  color: "#fff",
+                  textTransform: "uppercase",
+                  textAlign: "center",
+                  fontFamily: "Helvetica, Arial, sans-serif",
+                }}>
+                  {t.title}
+                </h1>
                 <p className="home-tagline" style={{ fontSize: 11, letterSpacing: isKo ? "0.04em" : "0.1em", opacity: 0.6, margin: "14px 0 0", color: "#fff", textTransform: "uppercase", textAlign: "center" }}>
                   {t.tagline}
                 </p>
@@ -278,8 +277,8 @@ function AppShell() {
             <div style={{ gridRow: "2", gridColumn: "1", display: "grid", gap: 4, background: "#000", gridTemplateColumns: "1fr 1fr", minHeight: 0 }}>
               <button onClick={() => { navigateTo("profile"); play("C5", "16n"); }} onMouseEnter={() => play("A5", "64n")}
                 className="home-tile"
-                style={{ background: "#fff", border: "none", padding: "16px 22px", cursor: "pointer", color: "#1B1A17", textAlign: "left", display: "flex", alignItems: "center", gap: 12 }}>
-                <User size={18} color="#1B1A17" />
+                style={{ background: profileBg, border: "none", padding: "16px 22px", cursor: "pointer", color: profileFg, textAlign: "left", display: "flex", alignItems: "center", gap: 12 }}>
+                <User size={18} color={profileFg} />
                 <span style={{ fontWeight: 800, fontSize: 13, textTransform: "uppercase" }}>{t.menu.setting}</span>
               </button>
               <button onClick={() => { navigateTo("about"); play("G4", "16n"); }} onMouseEnter={() => play("B5", "64n")}
