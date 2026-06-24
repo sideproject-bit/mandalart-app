@@ -231,7 +231,7 @@ function AppShell() {
       {isMobile && view !== "home" && !mobileSettingsOpen && (
         <button onClick={() => { setMobileSettingsOpen(true); play("F5", "16n"); }} aria-label="Settings"
           style={{
-            position: "fixed", top: 14, right: 14, zIndex: 90,
+            position: "fixed", top: 14, right: 14, zIndex: 40,
             width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center",
             background: pal.bg, color: pal.ink, border: `1px solid ${pal.ink}33`,
             cursor: "pointer",
@@ -682,7 +682,7 @@ function AppShell() {
             </div>
             {!isMobile && <TopControls pal={pal} dark={dark} setDark={setDark} lang={lang} setLang={setLang} theme={theme} setTheme={setTheme} soundOn={soundOn} setSoundOn={setSoundOn} notifOn={notifOn} toggleNotif={toggleNotif} t={t} play={play} music={music} dropdownUp={false} onHome={() => navigateTo("home")} />}
           </div>
-          <PomodoroTimer t={t} pal={pal} dark={dark} theme={theme} notifOn={notifOn} />
+          <PomodoroTimer t={t} pal={pal} dark={dark} theme={theme} notifOn={notifOn} userId={myId} />
         </div>
       )}
 

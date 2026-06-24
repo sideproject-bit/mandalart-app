@@ -7,8 +7,11 @@ const COLS = 9;
 const ROWS = 5;
 const TOTAL = COLS * ROWS; // 45 minutes max
 
-export default function PomodoroTimer({ t, pal, dark, theme, notifOn }) {
+const LI_MAX_MS = 24 * 3600 * 1000; // locking-in stopwatch cap: 24h
+
+export default function PomodoroTimer({ t, pal, dark, theme, notifOn, userId }) {
   const p = t.pomodoro;
+  const li = p.lockin;
 
   const [duration, setDuration] = useState(0);       // minutes
   const [elapsedMs, setElapsedMs] = useState(0);     // ms, for smooth animation
@@ -22,6 +25,70 @@ export default function PomodoroTimer({ t, pal, dark, theme, notifOn }) {
 
   const [dragging, setDragging] = useState(false);
   const dragStart = useRef(null);
+
+  // ── Locking-in (long-focus stopwatch) mode ──
+  const [mode, setMode] = useState("timer"); // "timer" | "lockin"
+  const [liElapsedMs, setLiElapsedMs] = useState(0);
+  const [liRunning, setLiRunning] = useState(false);
+  const [liGoalH, setLiGoalH] = useState(1);
+  const [liGoalM, setLiGoalM] = useState(0);
+  const [liSavedFlash, setLiSavedFlash] = useState(false);
+  const [showArchive, setShowArchive] = useState(false);
+  const liGoalFiredRef = useRef(false);
+  const recKey = `grida_lockin_${userId ?? "anon"}`;
+  const [records, setRecords] = useState(() => {
+    try { return JSON.parse(localStorage.getItem(recKey) ?? "[]"); } catch { return []; }
+  });
+
+  const liGoalMs = Math.min((liGoalH * 60 + liGoalM) * 60000, LI_MAX_MS);
+  const liGoalReached = liGoalMs > 0 && liElapsedMs >= liGoalMs;
+
+  // Stopwatch runs only while the tab is open AND visible/active
+  useEffect(() => {
+    if (mode !== "lockin" || !liRunning) return;
+    let last = Date.now();
+    const tick = () => {
+      const now = Date.now();
+      if (!document.hidden) setLiElapsedMs((ms) => Math.min(ms + (now - last), LI_MAX_MS));
+      last = now;
+    };
+    const id = setInterval(tick, 1000);
+    const resync = () => { last = Date.now(); };
+    document.addEventListener("visibilitychange", resync);
+    window.addEventListener("focus", resync);
+    window.addEventListener("blur", resync);
+    return () => {
+      clearInterval(id);
+      document.removeEventListener("visibilitychange", resync);
+      window.removeEventListener("focus", resync);
+      window.removeEventListener("blur", resync);
+    };
+  }, [mode, liRunning]);
+
+  // Stop at the 24h cap
+  useEffect(() => { if (liElapsedMs >= LI_MAX_MS) setLiRunning(false); }, [liElapsedMs]);
+
+  // Celebrate when the focus goal is reached (but keep counting)
+  useEffect(() => {
+    if (liGoalReached && !liGoalFiredRef.current) { liGoalFiredRef.current = true; playChime(); }
+    if (!liGoalReached) liGoalFiredRef.current = false;
+  }, [liGoalReached]);
+
+  function liReset() { setLiRunning(false); setLiElapsedMs(0); liGoalFiredRef.current = false; }
+  function liSave() {
+    if (liElapsedMs < 1000) return;
+    const rec = { ts: Date.now(), date: new Date().toISOString().slice(0, 10), durationMs: liElapsedMs };
+    const next = [rec, ...records];
+    setRecords(next);
+    try { localStorage.setItem(recKey, JSON.stringify(next)); } catch (_) {}
+    setLiSavedFlash(true);
+    setTimeout(() => setLiSavedFlash(false), 2000);
+  }
+  function liDeleteRecord(ts) {
+    const next = records.filter((r) => r.ts !== ts);
+    setRecords(next);
+    try { localStorage.setItem(recKey, JSON.stringify(next)); } catch (_) {}
+  }
 
   const startTsRef = useRef(null);    // timestamp when current run segment started
   const baseMsRef = useRef(0);        // accumulated ms from paused segments
@@ -70,7 +137,7 @@ export default function PomodoroTimer({ t, pal, dark, theme, notifOn }) {
     return () => cancelAnimationFrame(rafRef.current);
   }, [running, durationMs]);
 
-  function fireComplete() {
+  function playChime() {
     try {
       const s = new Tone.Synth({
         oscillator: { type: "sine" },
@@ -80,6 +147,10 @@ export default function PomodoroTimer({ t, pal, dark, theme, notifOn }) {
       setTimeout(() => s.triggerAttackRelease("E5", "8n"), 300);
       setTimeout(() => s.triggerAttackRelease("G5", "4n"), 600);
     } catch (_) {}
+  }
+
+  function fireComplete() {
+    playChime();
 
     if (notifOn && typeof Notification !== "undefined" && Notification.permission === "granted") {
       new Notification(p.notifTitle, { body: p.notifBody(goal) });
@@ -176,6 +247,86 @@ export default function PomodoroTimer({ t, pal, dark, theme, notifOn }) {
         maxWidth: 520, margin: "0 auto", padding: "24px 16px",
         color: ink, fontFamily: "inherit",
       }}>
+        {/* Mode toggle: Timer / Locking in */}
+        <div style={{ display: "flex", border: `2px solid ${dark ? "#444" : "#1B1A17"}`, marginBottom: 20 }}>
+          {[["timer", li.modeTimer], ["lockin", li.modeLockin]].map(([key, label], i) => (
+            <button key={key} onClick={() => setMode(key)} style={{
+              flex: 1, padding: "9px 4px", cursor: "pointer", fontFamily: "inherit",
+              background: mode === key ? accent : "transparent",
+              color: mode === key ? "#fff" : ink,
+              border: "none", borderLeft: i > 0 ? `2px solid ${dark ? "#444" : "#1B1A17"}` : "none",
+              fontWeight: 800, fontSize: 12, textTransform: "uppercase", letterSpacing: "0.04em",
+              opacity: mode === key ? 1 : 0.7,
+            }}>{label}</button>
+          ))}
+        </div>
+
+      {mode === "lockin" ? (
+        <div>
+          {/* Archive entry */}
+          <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
+            <button onClick={() => setShowArchive(true)} style={{ background: "none", border: `1px solid ${pal.ink}40`, color: ink, padding: "5px 12px", fontSize: 11, fontWeight: 700, cursor: "pointer" }}>
+              {li.archive}
+            </button>
+          </div>
+
+          {liElapsedMs === 0 && !liRunning ? (
+            /* Goal setup */
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: 13, fontWeight: 700, opacity: 0.7, marginBottom: 14 }}>{li.goalLabel}</div>
+              <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                <input type="number" min={0} max={23} value={liGoalH}
+                  onChange={(e) => setLiGoalH(Math.max(0, Math.min(23, parseInt(e.target.value) || 0)))}
+                  style={liNumStyle(dark, ink)} />
+                <span style={{ fontWeight: 700 }}>h</span>
+                <input type="number" min={0} max={59} value={liGoalM}
+                  onChange={(e) => setLiGoalM(Math.max(0, Math.min(59, parseInt(e.target.value) || 0)))}
+                  style={liNumStyle(dark, ink)} />
+                <span style={{ fontWeight: 700 }}>m</span>
+              </div>
+              <div style={{ fontSize: 12, opacity: 0.5, marginBottom: 20 }}>{li.goalSet}</div>
+              <button onClick={() => setLiRunning(true)} disabled={liGoalMs === 0}
+                style={btnStyle(accent, "#fff", liGoalMs === 0 ? 0.4 : 1)}>
+                {li.start}
+              </button>
+            </div>
+          ) : (
+            /* Stopwatch */
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: 48, fontWeight: 900, letterSpacing: 2, fontVariantNumeric: "tabular-nums", lineHeight: 1.1 }}>
+                {fmtClock(liElapsedMs)}
+              </div>
+              {liGoalMs > 0 && (
+                <div style={{ fontSize: 13, color: dark ? "#aaa" : "#888", marginTop: 4 }}>
+                  {li.elapsed} {fmtDur(liElapsedMs)} {li.of} {fmtDur(liGoalMs)}
+                </div>
+              )}
+              {/* progress bar */}
+              {liGoalMs > 0 && (
+                <div style={{ height: 6, background: dark ? "#333" : "#ddd", borderRadius: 3, margin: "14px 0", overflow: "hidden" }}>
+                  <div style={{ height: "100%", width: `${Math.min(100, (liElapsedMs / liGoalMs) * 100)}%`, background: accent, transition: "width 0.5s" }} />
+                </div>
+              )}
+              {liGoalReached && (
+                <div style={{ background: accent + "22", border: `1px solid ${accent}`, color: ink, padding: "10px 14px", fontSize: 13, fontWeight: 700, margin: "0 0 16px" }}>
+                  {li.congrats}
+                </div>
+              )}
+              <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", marginBottom: 16 }}>
+                {liRunning ? (
+                  <button onClick={() => setLiRunning(false)} style={btnStyle(dark ? "#444" : "#ccc", ink, 1)}>{li.pause}</button>
+                ) : (
+                  <button onClick={() => setLiRunning(true)} disabled={liElapsedMs >= LI_MAX_MS} style={btnStyle(accent, "#fff", liElapsedMs >= LI_MAX_MS ? 0.4 : 1)}>{li.resume}</button>
+                )}
+                <button onClick={liSave} style={btnStyle(liSavedFlash ? "#3CA45C" : pal.accent3, "#1a1a1a", 1)}>{liSavedFlash ? li.saved : li.save}</button>
+                <button onClick={liReset} style={btnStyle(dark ? "#333" : "#e0ddd0", ink, 1)}>{li.reset}</button>
+              </div>
+              <div style={{ fontSize: 11, opacity: 0.45 }}>{li.hint}</div>
+            </div>
+          )}
+        </div>
+      ) : (
+        <>
         {/* Goal input */}
         <input
           type="text"
@@ -284,6 +435,8 @@ export default function PomodoroTimer({ t, pal, dark, theme, notifOn }) {
             {p.notifPermission}
           </div>
         )}
+        </>
+      )}
 
         {/* About toggle */}
         <button
@@ -326,8 +479,56 @@ export default function PomodoroTimer({ t, pal, dark, theme, notifOn }) {
           </div>
         )}
       </div>
+
+      {/* Locking-in archive modal */}
+      {showArchive && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 60, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }} onClick={() => setShowArchive(false)}>
+          <div onClick={(e) => e.stopPropagation()} style={{ width: 380, maxWidth: "100%", maxHeight: "80vh", display: "flex", flexDirection: "column", background: pal.bg, color: ink, border: `2px solid ${accent}`, borderRadius: 10, padding: 20 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+              <span style={{ fontWeight: 900, fontSize: 16, textTransform: "uppercase" }}>{li.archiveTitle}</span>
+              <button onClick={() => setShowArchive(false)} style={{ background: "none", border: "none", color: ink, cursor: "pointer", fontSize: 13 }}>{li.close}</button>
+            </div>
+            {records.length === 0 ? (
+              <div style={{ fontSize: 13, opacity: 0.5, padding: "20px 0", textAlign: "center" }}>{li.archiveEmpty}</div>
+            ) : (
+              <div style={{ overflowY: "auto", display: "flex", flexDirection: "column", gap: 6 }}>
+                {records.map((r) => (
+                  <div key={r.ts} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, padding: "10px 12px", background: dark ? "#1e1d16" : "#f0ede2", borderLeft: `3px solid ${accent}` }}>
+                    <span style={{ fontSize: 12, opacity: 0.7 }}>{r.date}</span>
+                    <span style={{ fontWeight: 800, fontSize: 14 }}>{fmtDur(r.durationMs)}</span>
+                    <button onClick={() => liDeleteRecord(r.ts)} style={{ background: "none", border: "none", cursor: "pointer", color: ink, opacity: 0.3, fontSize: 16, lineHeight: 1 }}>×</button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
+}
+
+function liNumStyle(dark, ink) {
+  return {
+    width: 64, textAlign: "center", padding: "10px 6px", fontSize: 20, fontWeight: 800,
+    fontFamily: "inherit", border: `1.5px solid ${dark ? "#444" : "#ccc"}`, borderRadius: 8,
+    background: dark ? "#1e1d16" : "#fff", color: ink, outline: "none",
+  };
+}
+
+function fmtClock(ms) {
+  const total = Math.floor(ms / 1000);
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+}
+
+function fmtDur(ms) {
+  const total = Math.floor(ms / 60000);
+  const h = Math.floor(total / 60);
+  const m = total % 60;
+  return h > 0 ? `${h}h ${m}m` : `${m}m`;
 }
 
 function btnStyle(bg, color, opacity) {

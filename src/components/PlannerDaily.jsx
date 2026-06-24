@@ -462,10 +462,11 @@ export default function PlannerDaily({ t, pal, dark, editMode, events, onEventsC
           <div style={{ position: "fixed", inset: 0, zIndex: 50, background: "rgba(0,0,0,0.45)" }} onClick={() => setPopup(null)} />
           <div style={{
             position: "fixed",
-            left: "50%",
+            left: isMobile ? 14 : "50%",
+            right: isMobile ? 14 : "auto",
             top: isMobile ? 16 : "50%",
-            transform: isMobile ? "translateX(-50%)" : "translate(-50%, -50%)",
-            zIndex: 51, width: 300, maxWidth: "90vw",
+            transform: isMobile ? "none" : "translate(-50%, -50%)",
+            zIndex: 51, width: isMobile ? "auto" : 300, maxWidth: isMobile ? "none" : "90vw",
             background: bg, color: ink,
             border: `2px solid ${acc}`,
             borderRadius: 10, padding: 20,
@@ -480,6 +481,8 @@ export default function PlannerDaily({ t, pal, dark, editMode, events, onEventsC
               onChange={e => setPopTitle(e.target.value)}
               onKeyDown={e => e.key === "Enter" && saveEvent()}
               placeholder={pl.eventTitlePlaceholder}
+              name="grida-event-title"
+              autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false} data-form-type="other"
               style={{ width: "100%", boxSizing: "border-box", padding: "8px 10px", fontSize: 13, fontFamily: "inherit", border: `1px solid ${dark ? "#444" : "#ccc"}`, borderRadius: 6, background: dark ? "#1e1d16" : "#fff", color: ink, outline: "none", marginBottom: 10 }}
             />
             <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
@@ -514,10 +517,12 @@ export default function PlannerDaily({ t, pal, dark, editMode, events, onEventsC
         <>
           <div style={{ position: "fixed", inset: 0, zIndex: 50, background: "rgba(0,0,0,0.45)" }} onClick={() => setViewEvent(null)} />
           <div style={{
-            position: "fixed", left: "50%",
+            position: "fixed",
+            left: isMobile ? 14 : "50%",
+            right: isMobile ? 14 : "auto",
             top: isMobile ? 16 : "50%",
-            transform: isMobile ? "translateX(-50%)" : "translate(-50%, -50%)",
-            zIndex: 51, width: 300, maxWidth: "90vw",
+            transform: isMobile ? "none" : "translate(-50%, -50%)",
+            zIndex: 51, width: isMobile ? "auto" : 300, maxWidth: isMobile ? "none" : "90vw",
             background: bg, color: ink, border: `2px solid ${viewEvent.color}`,
             borderRadius: 10, padding: 20, boxShadow: "0 12px 40px rgba(0,0,0,0.4)",
           }}>

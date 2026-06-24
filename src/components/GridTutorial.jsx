@@ -233,7 +233,7 @@ export default function GridTutorial({ t, pal, onClose, onDontShow }) {
         <div style={{
           display: "flex", justifyContent: "center", alignItems: "center",
           padding: "28px 0 20px",
-          background: pal.accent2 + "18",
+          background: "#1e1e1e",
           borderBottom: `1px solid ${pal.ink}12`,
         }}>
           <Visual accent={pal.accent} />
