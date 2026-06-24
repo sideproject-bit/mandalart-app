@@ -46,6 +46,7 @@ export default function PlannerDaily({ t, pal, dark, editMode, events, onEventsC
   const [popColor,    setPopColor]    = useState(EVENT_COLORS[0]);
   const [popMemo,     setPopMemo]     = useState("");
   const [todoInput,   setTodoInput]   = useState("");
+  const [section,     setSection]     = useState("time"); // mobile segment: time | events | todo
 
   const dragRef = useRef({ active: false, start: null, end: null, dragging: false });
   const gridRef = useRef(null);
@@ -167,6 +168,125 @@ export default function PlannerDaily({ t, pal, dark, editMode, events, onEventsC
     };
   }
 
+  // ── Section bodies (shared by desktop columns + mobile segments) ──
+  const timeBody = (
+    <div
+      ref={gridRef}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onDoubleClick={handleDoubleClick}
+      style={{ touchAction: "none", userSelect: "none", cursor: editMode ? "crosshair" : "default" }}
+    >
+      {/* Minute header */}
+      <div style={{ display: "grid", gridTemplateColumns: `${LABEL_W}px repeat(${COLS}, 1fr)`, height: HEADER_H }}>
+        <div />
+        {[":00", ":10", ":20", ":30", ":40", ":50"].map(m => (
+          <div key={m} style={{ fontSize: 10, textAlign: "center", opacity: 0.35, lineHeight: `${HEADER_H}px`, fontVariantNumeric: "tabular-nums" }}>{m}</div>
+        ))}
+      </div>
+
+      {/* Hour rows */}
+      {Array.from({ length: ROWS }, (_, h) => (
+        <div key={h} style={{ display: "grid", gridTemplateColumns: `${LABEL_W}px repeat(${COLS}, 1fr)` }}>
+          <div style={{
+            fontSize: 11, textAlign: "right", paddingRight: 8,
+            opacity: 0.38, lineHeight: `${CELL_H}px`, fontVariantNumeric: "tabular-nums", fontWeight: 600,
+          }}>
+            {String(h).padStart(2, "0")}
+          </div>
+          {Array.from({ length: COLS }, (_, m) => {
+            const idx = h * COLS + m;
+            const evt = cellEventMap[idx];
+            const inSel = selRange && idx >= selRange.start && idx <= selRange.end;
+            const isCurr = idx === currentCell;
+            return (
+              <div key={idx} style={{
+                height: CELL_H,
+                background: inSel ? acc + "55"
+                  : evt ? evt.color + "bb"
+                  : "transparent",
+                border: isCurr
+                  ? `2px solid ${acc}`
+                  : `1px solid ${border}`,
+                boxSizing: "border-box",
+              }} />
+            );
+          })}
+        </div>
+      ))}
+    </div>
+  );
+
+  const eventsBody = (
+    events.length === 0
+      ? <div style={{ fontSize: 12, opacity: 0.3, paddingTop: 4 }}>{pl.noEvents}</div>
+      : [...events].sort((a, b) => a.startCell - b.startCell).map(evt => (
+        <div key={evt.id} style={{
+          display: "flex", alignItems: "flex-start", gap: 8,
+          padding: "8px 10px", marginBottom: 6,
+          background: dark ? "#1e1d16" : "#f0ede2",
+          borderLeft: `3px solid ${evt.color}`,
+          borderRadius: 4,
+        }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontWeight: 700, fontSize: 13, wordBreak: "keep-all" }}>{evt.title}</div>
+            <div style={{ fontSize: 11, opacity: 0.45, marginTop: 2 }}>
+              {cellToTime(evt.startCell)} – {cellToTimeEnd(evt.endCell)}
+            </div>
+            {evt.memo && <div style={{ fontSize: 11, opacity: 0.6, marginTop: 4, wordBreak: "keep-all" }}>{evt.memo}</div>}
+            {evt.fromCalendar && <div style={{ fontSize: 10, opacity: 0.35, marginTop: 4 }}>📅 {pl.fromCalendar}</div>}
+          </div>
+          {!evt.fromCalendar && editMode && (
+            <button onClick={() => deleteEvent(evt.id)} style={{ background: "none", border: "none", cursor: "pointer", color: ink, opacity: 0.3, fontSize: 16, padding: 0, lineHeight: 1, flexShrink: 0 }}>×</button>
+          )}
+        </div>
+      ))
+  );
+
+  const todoBody = (
+    <>
+      {editMode && (
+        <form onSubmit={addTodo} style={{ display: "flex", gap: 6, marginBottom: 10 }}>
+          <input
+            value={todoInput}
+            onChange={e => setTodoInput(e.target.value)}
+            placeholder={pl.todoPlaceholder}
+            style={{ flex: 1, padding: "7px 10px", fontSize: 12, border: `1px solid ${dark ? "#444" : "#ccc"}`, borderRadius: 6, background: dark ? "#1e1d16" : "#fff", color: ink, fontFamily: "inherit", outline: "none" }}
+          />
+          <button type="submit" style={{ background: isMon ? MON.yellow : acc, color: isMon ? "#1a1a1a" : "#fff", border: "none", borderRadius: 6, padding: "7px 11px", cursor: "pointer", fontSize: 14, fontWeight: 700 }}>+</button>
+        </form>
+      )}
+      {todos.length === 0
+        ? <div style={{ fontSize: 12, opacity: 0.3 }}>{pl.noTodos}</div>
+        : todos.map(td => (
+          <div key={td.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0", borderBottom: `1px solid ${border}` }}>
+            <input
+              type="checkbox"
+              checked={td.done}
+              onChange={() => toggleTodo(td.id)}
+              disabled={!editMode}
+              style={{ accentColor: acc, cursor: "pointer", flexShrink: 0 }}
+            />
+            <span style={{ flex: 1, fontSize: 13, textDecoration: td.done ? "line-through" : "none", opacity: td.done ? 0.35 : 1, wordBreak: "keep-all" }}>
+              {td.text}
+            </span>
+            {editMode && (
+              <button onClick={() => deleteTodo(td.id)} style={{ background: "none", border: "none", cursor: "pointer", color: ink, opacity: 0.25, fontSize: 16, padding: 0, lineHeight: 1, flexShrink: 0 }}>×</button>
+            )}
+          </div>
+        ))
+      }
+    </>
+  );
+
+  // Mobile segmented control: Timeline (red) / Events (blue) / To-do (yellow)
+  const SEGMENTS = [
+    ["time",   pl.timeBlocks, MON.red],
+    ["events", pl.eventsCol,  MON.blue],
+    ["todo",   pl.todoCol,    MON.yellow],
+  ];
+
   return (
     <div>
       {/* Date */}
@@ -177,125 +297,47 @@ export default function PlannerDaily({ t, pal, dark, editMode, events, onEventsC
         <div style={{ fontSize: 11, opacity: 0.3, fontStyle: "italic" }}>{pl.resetNote}</div>
       </div>
 
-      {/* 3-column layout on desktop, stacked single column on mobile */}
-      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "minmax(0,0.5fr) minmax(0,1fr) minmax(0,1fr)", gap: isMobile ? 28 : 20, alignItems: "start" }}>
-
-        {/* ── Time Block Grid ── */}
-        <div>
-          <div style={colHeader(MON.red)}>{pl.timeBlocks}</div>
-          <div
-            ref={gridRef}
-            onPointerDown={handlePointerDown}
-            onPointerMove={handlePointerMove}
-            onPointerUp={handlePointerUp}
-            onDoubleClick={handleDoubleClick}
-            style={{ touchAction: "none", userSelect: "none", cursor: editMode ? "crosshair" : "default" }}
-          >
-            {/* Minute header */}
-            <div style={{ display: "grid", gridTemplateColumns: `${LABEL_W}px repeat(${COLS}, 1fr)`, height: HEADER_H }}>
-              <div />
-              {[":00", ":10", ":20", ":30", ":40", ":50"].map(m => (
-                <div key={m} style={{ fontSize: 10, textAlign: "center", opacity: 0.35, lineHeight: `${HEADER_H}px`, fontVariantNumeric: "tabular-nums" }}>{m}</div>
-              ))}
-            </div>
-
-            {/* Hour rows */}
-            {Array.from({ length: ROWS }, (_, h) => (
-              <div key={h} style={{ display: "grid", gridTemplateColumns: `${LABEL_W}px repeat(${COLS}, 1fr)` }}>
-                <div style={{
-                  fontSize: 11, textAlign: "right", paddingRight: 8,
-                  opacity: 0.38, lineHeight: `${CELL_H}px`, fontVariantNumeric: "tabular-nums", fontWeight: 600,
-                }}>
-                  {String(h).padStart(2, "0")}
-                </div>
-                {Array.from({ length: COLS }, (_, m) => {
-                  const idx = h * COLS + m;
-                  const evt = cellEventMap[idx];
-                  const inSel = selRange && idx >= selRange.start && idx <= selRange.end;
-                  const isCurr = idx === currentCell;
-                  return (
-                    <div key={idx} style={{
-                      height: CELL_H,
-                      background: inSel ? acc + "55"
-                        : evt ? evt.color + "bb"
-                        : "transparent",
-                      border: isCurr
-                        ? `2px solid ${acc}`
-                        : `1px solid ${border}`,
-                      boxSizing: "border-box",
-                    }} />
-                  );
-                })}
-              </div>
-            ))}
+      {isMobile ? (
+        /* ── Mobile: Mondrian segmented control, one section at a time ── */
+        <>
+          <div style={{ display: "flex", border: "2px solid #1B1A17", marginBottom: 18 }}>
+            {SEGMENTS.map(([key, label, monColor], i) => {
+              const active = section === key;
+              const segBg = isMon ? monColor : acc;
+              return (
+                <button key={key} onClick={() => setSection(key)} style={{
+                  flex: 1, padding: "10px 4px", cursor: "pointer", fontFamily: "inherit",
+                  background: active ? segBg : (dark ? "#1e1d16" : "#f4f0e4"),
+                  color: active ? (isMon && monColor === MON.yellow ? "#1a1a1a" : "#fff") : ink,
+                  border: "none",
+                  borderLeft: i > 0 ? "2px solid #1B1A17" : "none",
+                  fontWeight: 800, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.04em",
+                  opacity: active ? 1 : 0.7, transition: "background 0.15s, color 0.15s",
+                }}>{label}</button>
+              );
+            })}
+          </div>
+          {section === "time"   && timeBody}
+          {section === "events" && eventsBody}
+          {section === "todo"   && todoBody}
+        </>
+      ) : (
+        /* ── Desktop: 3-column layout ── */
+        <div style={{ display: "grid", gridTemplateColumns: "minmax(0,0.5fr) minmax(0,1fr) minmax(0,1fr)", gap: 20, alignItems: "start" }}>
+          <div>
+            <div style={colHeader(MON.red)}>{pl.timeBlocks}</div>
+            {timeBody}
+          </div>
+          <div>
+            <div style={colHeader(MON.blue)}>{pl.eventsCol}</div>
+            {eventsBody}
+          </div>
+          <div>
+            <div style={colHeader(MON.yellow)}>{pl.todoCol}</div>
+            {todoBody}
           </div>
         </div>
-
-        {/* ── Events ── */}
-        <div>
-          <div style={colHeader(MON.blue)}>{pl.eventsCol}</div>
-          {events.length === 0
-            ? <div style={{ fontSize: 12, opacity: 0.3, paddingTop: 4 }}>{pl.noEvents}</div>
-            : [...events].sort((a, b) => a.startCell - b.startCell).map(evt => (
-              <div key={evt.id} style={{
-                display: "flex", alignItems: "flex-start", gap: 8,
-                padding: "8px 10px", marginBottom: 6,
-                background: dark ? "#1e1d16" : "#f0ede2",
-                borderLeft: `3px solid ${evt.color}`,
-                borderRadius: 4,
-              }}>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontWeight: 700, fontSize: 13, wordBreak: "keep-all" }}>{evt.title}</div>
-                  <div style={{ fontSize: 11, opacity: 0.45, marginTop: 2 }}>
-                    {cellToTime(evt.startCell)} – {cellToTimeEnd(evt.endCell)}
-                  </div>
-                  {evt.memo && <div style={{ fontSize: 11, opacity: 0.6, marginTop: 4, wordBreak: "keep-all" }}>{evt.memo}</div>}
-                  {evt.fromCalendar && <div style={{ fontSize: 10, opacity: 0.35, marginTop: 4 }}>📅 {pl.fromCalendar}</div>}
-                </div>
-                {!evt.fromCalendar && editMode && (
-                  <button onClick={() => deleteEvent(evt.id)} style={{ background: "none", border: "none", cursor: "pointer", color: ink, opacity: 0.3, fontSize: 16, padding: 0, lineHeight: 1, flexShrink: 0 }}>×</button>
-                )}
-              </div>
-            ))
-          }
-        </div>
-
-        {/* ── To-do ── */}
-        <div>
-          <div style={colHeader(MON.yellow)}>{pl.todoCol}</div>
-          {editMode && (
-            <form onSubmit={addTodo} style={{ display: "flex", gap: 6, marginBottom: 10 }}>
-              <input
-                value={todoInput}
-                onChange={e => setTodoInput(e.target.value)}
-                placeholder={pl.todoPlaceholder}
-                style={{ flex: 1, padding: "7px 10px", fontSize: 12, border: `1px solid ${dark ? "#444" : "#ccc"}`, borderRadius: 6, background: dark ? "#1e1d16" : "#fff", color: ink, fontFamily: "inherit", outline: "none" }}
-              />
-              <button type="submit" style={{ background: isMon ? MON.yellow : acc, color: isMon ? "#1a1a1a" : "#fff", border: "none", borderRadius: 6, padding: "7px 11px", cursor: "pointer", fontSize: 14, fontWeight: 700 }}>+</button>
-            </form>
-          )}
-          {todos.length === 0
-            ? <div style={{ fontSize: 12, opacity: 0.3 }}>{pl.noTodos}</div>
-            : todos.map(td => (
-              <div key={td.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0", borderBottom: `1px solid ${border}` }}>
-                <input
-                  type="checkbox"
-                  checked={td.done}
-                  onChange={() => toggleTodo(td.id)}
-                  disabled={!editMode}
-                  style={{ accentColor: acc, cursor: "pointer", flexShrink: 0 }}
-                />
-                <span style={{ flex: 1, fontSize: 13, textDecoration: td.done ? "line-through" : "none", opacity: td.done ? 0.35 : 1, wordBreak: "keep-all" }}>
-                  {td.text}
-                </span>
-                {editMode && (
-                  <button onClick={() => deleteTodo(td.id)} style={{ background: "none", border: "none", cursor: "pointer", color: ink, opacity: 0.25, fontSize: 16, padding: 0, lineHeight: 1, flexShrink: 0 }}>×</button>
-                )}
-              </div>
-            ))
-          }
-        </div>
-      </div>
+      )}
 
       {/* ── Event creation popup ── */}
       {popup && (
