@@ -227,6 +227,18 @@ function AppShell() {
 
       {onboardingOpen && <Onboarding t={t} pal={pal} play={play} onClose={closeOnboarding} />}
       {showWelcome && <WelcomeScreen play={play} onFinish={() => setShowWelcome(false)} />}
+      {/* Mobile: floating settings access on every screen except home (& while settings open) */}
+      {isMobile && view !== "home" && !mobileSettingsOpen && (
+        <button onClick={() => { setMobileSettingsOpen(true); play("F5", "16n"); }} aria-label="Settings"
+          style={{
+            position: "fixed", top: 14, right: 14, zIndex: 90,
+            width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center",
+            background: pal.bg, color: pal.ink, border: `1px solid ${pal.ink}33`,
+            cursor: "pointer",
+          }}>
+          <Settings size={20} />
+        </button>
+      )}
       {mobileSettingsOpen && isMobile && (
         <MobileSettings
           pal={pal} dark={dark} setDark={setDark} lang={lang} setLang={setLang}

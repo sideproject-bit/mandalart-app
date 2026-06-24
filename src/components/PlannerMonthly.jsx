@@ -43,7 +43,8 @@ export default function PlannerMonthly({ t, pal, dark, calEvents, onCalEventsCha
     return d >= 1 && d <= daysInMonth ? d : null;
   });
 
-  const todayStr = today.toISOString().slice(0, 10);
+  // Local-timezone key (toISOString would use UTC and roll over early)
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
 
   function dateKey(d) {
     return `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;

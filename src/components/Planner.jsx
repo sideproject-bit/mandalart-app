@@ -2,14 +2,19 @@ import { useState, useEffect } from "react";
 import PlannerDaily from "./PlannerDaily";
 import PlannerMonthly from "./PlannerMonthly";
 
+// Local-timezone date key (toISOString would use UTC and roll over early)
+function localKey(d) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 function todayKey() {
-  return new Date().toISOString().slice(0, 10);
+  return localKey(new Date());
 }
 
 function tomorrowKey() {
   const d = new Date();
   d.setDate(d.getDate() + 1);
-  return d.toISOString().slice(0, 10);
+  return localKey(d);
 }
 
 const MON_RED  = "#C7382E";

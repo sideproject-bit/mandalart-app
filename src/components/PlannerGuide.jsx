@@ -114,9 +114,9 @@ const MOBILE_VISUALS = [
       <polygon points="108,27 114,31 108,35" fill="#2B3DCB" opacity={0.8} />
       <text x={120} y={34} fill="#2B3DCB" fontSize={7} fontWeight={700}>TMRW</text>
       <rect x={30} y={50} width={120} height={22} rx={4} fill="#ffffff0d" stroke="#C7382E" strokeWidth={1.2} />
-      <path d="M136,61 l-64,0" stroke="#C7382E" strokeWidth={1.5} strokeDasharray="3 2" opacity={0.7} />
-      <polygon points="72,57 66,61 72,65" fill="#C7382E" opacity={0.8} />
-      <text x={44} y={64} fill="#C7382E" fontSize={7} fontWeight={700}>DELETE</text>
+      <path d="M134,61 l-44,0" stroke="#C7382E" strokeWidth={1.5} strokeDasharray="3 2" opacity={0.7} />
+      <polygon points="90,57 84,61 90,65" fill="#C7382E" opacity={0.8} />
+      <text x={78} y={64} textAnchor="end" fill="#C7382E" fontSize={7} fontWeight={700}>DELETE</text>
     </svg>
   ),
 ];
