@@ -133,6 +133,7 @@ export const T = {
       { t: "Planner", b: "Map your day in 144 ten-minute blocks. Mark time as you work, log events, and manage todos to see where your hours really go." },
       { t: "Pomodoro", b: "Focus one cell at a time. Name your task, set a duration, and work in structured intervals with real rest between them." },
       { t: "Ready to start", b: "Each tool has its own quick guide when you first open it. Pick one and place your first cell." },
+      { t: "Install the app", b: "GridA works as an installable app — no app store needed. On Android, tap the Install button at the bottom of the screen. On iPhone, tap the Share icon in Safari and choose \"Add to Home Screen\"." },
     ],
     mandalartAbout: {
       title: "What is Mandalart?",
@@ -324,6 +325,13 @@ export const T = {
     next: "Next", prev: "Back", start: "Start writing", skip: "Skip",
     sound: "Sound", lang: "Language", theme: "Theme", dark: "Dark", light: "Light",
     settings: "Settings", notifications: "Notifications",
+    install: {
+      title: "Install GridA",
+      body: "Add to your home screen for the full app experience.",
+      install: "Install",
+      iosHint: "Tap",
+      iosHint2: "then \"Add to Home Screen\"",
+    },
     pomodoro: {
       goalPlaceholder: "What are you focusing on?",
       start: "Start",
@@ -511,6 +519,7 @@ export const T = {
       { t: "플래너", b: "하루를 144개의 10분 블록으로 그려요. 작업한 시간을 표시하고, 일정을 기록하고, 할 일을 관리하며 시간이 어디로 가는지 봐요." },
       { t: "뽀모도로", b: "한 번에 한 칸씩 집중해요. 할 일을 적고, 시간을 정하고, 충분한 휴식이 있는 구조화된 집중 구간으로 일해요." },
       { t: "시작할 준비 됐어요", b: "각 도구는 처음 열 때 간단한 가이드를 보여줘요. 하나를 골라 첫 칸을 채워보세요." },
+      { t: "앱으로 설치하기", b: "GridA는 앱스토어 없이 설치할 수 있어요. 안드로이드는 화면 하단의 설치 버튼을 탭하세요. 아이폰은 Safari 하단 공유 버튼 → \"홈 화면에 추가\"를 선택하면 돼요." },
     ],
     mandalartAbout: {
       title: "만다라트란?",
@@ -702,6 +711,13 @@ export const T = {
     next: "다음", prev: "이전", start: "작성 시작", skip: "건너뛰기",
     sound: "사운드", lang: "언어", theme: "테마", dark: "다크", light: "라이트",
     settings: "설정", notifications: "알림",
+    install: {
+      title: "GridA 설치",
+      body: "홈 화면에 추가하면 앱처럼 바로 사용할 수 있어요.",
+      install: "설치",
+      iosHint: "하단",
+      iosHint2: "버튼 → \"홈 화면에 추가\"",
+    },
     pomodoro: {
       goalPlaceholder: "지금 무엇에 집중하나요?",
       start: "시작",

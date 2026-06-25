@@ -22,6 +22,7 @@ import { createMandalart } from "./api/mandalartsApi";
 import { supabase } from "./lib/supabaseClient";
 import UserGuide from "./components/UserGuide";
 import FloatingBlocks from "./components/FloatingBlocks";
+import InstallBanner from "./components/InstallBanner";
 import GridTutorial from "./components/GridTutorial";
 import PomodoroTimer from "./components/PomodoroTimer";
 import PomodoroGuide from "./components/PomodoroGuide";
@@ -385,6 +386,7 @@ function AppShell() {
                   </button>
                 </div>
               </div>
+              <InstallBanner t={t} pal={pal} dark={dark} />
             </div>
           );
         }
