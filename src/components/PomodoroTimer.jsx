@@ -505,7 +505,7 @@ export default function PomodoroTimer({ t, pal, dark, theme, notifOn, userId }) 
                 {records.map((r) => (
                   <div key={r.ts} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, padding: "10px 12px", background: dark ? "#1e1d16" : "#f0ede2", borderLeft: `3px solid ${accent}` }}>
                     <span style={{ fontSize: 12, opacity: 0.7 }}>{r.date}</span>
-                    <span style={{ fontWeight: 800, fontSize: 14 }}>{fmtDur(r.durationMs)}</span>
+                    <span style={{ fontWeight: 800, fontSize: 14 }}>{fmtClock(r.durationMs)}</span>
                     <button onClick={() => liDeleteRecord(r.ts)} aria-label="Delete" style={{ background: "none", border: "none", cursor: "pointer", color: "#C7382E", opacity: 0.7, display: "flex", padding: 4 }}><Trash2 size={15} /></button>
                   </div>
                 ))}

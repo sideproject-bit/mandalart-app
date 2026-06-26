@@ -52,6 +52,7 @@ function AppShell() {
   const [deleteFeedback, setDeleteFeedback] = useState("");
   const [deleteBusy, setDeleteBusy] = useState(false);
   const [profileTab, setProfileTab] = useState("profile"); // "profile" | "guide"
+  const [startView, setStartView] = useState(() => localStorage.getItem("grida_start_view") || "home");
   const [gridTutorialOpen, setGridTutorialOpen] = useState(false);
   const [pomodoroGuideOpen,  setPomodoroGuideOpen]  = useState(false);
   const [plannerGuideOpen,   setPlannerGuideOpen]   = useState(false);
@@ -113,7 +114,7 @@ function AppShell() {
     const uid = session.user.id;
     if (uid !== prevUserIdRef.current) {
       prevUserIdRef.current = uid;
-      setView("home");
+      setView(localStorage.getItem("grida_start_view") || "home");
       const savedTheme = localStorage.getItem(`theme_${uid}`);
       if (savedTheme && THEMES[savedTheme]) setTheme(savedTheme);
       const savedMusic = localStorage.getItem(`music_${uid}`);
@@ -227,13 +228,14 @@ function AppShell() {
         .home-tagline { animation: slideUpIn 0.65s cubic-bezier(0.22,1,0.36,1) 0.22s both; }
       `}</style>
 
-      {onboardingOpen && <Onboarding t={t} pal={pal} play={play} onClose={closeOnboarding} />}
+      {onboardingOpen && <Onboarding t={t} pal={pal} play={play} onClose={closeOnboarding} lang={lang} setLang={setLang} />}
       {showWelcome && <WelcomeScreen play={play} onFinish={() => setShowWelcome(false)} />}
       {mobileSettingsOpen && isMobile && (
         <MobileSettings
           pal={pal} dark={dark} setDark={setDark} lang={lang} setLang={setLang}
           theme={theme} setTheme={setTheme} soundOn={soundOn} setSoundOn={setSoundOn}
           notifOn={notifOn} toggleNotif={toggleNotif}
+          startView={startView} setStartView={(v) => { setStartView(v); localStorage.setItem("grida_start_view", v); }}
           t={t} play={play} music={music} onClose={() => setMobileSettingsOpen(false)}
         />
       )}
@@ -554,7 +556,12 @@ function AppShell() {
             {/* LEFT: Profile */}
             <div style={{ display: isMobile && profileTab !== "profile" ? "none" : undefined }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 10 }}>
-                <h2 style={{ fontWeight: 900, fontSize: 24, textTransform: "uppercase", margin: 0 }}>{t.menu.profile}</h2>
+                <div>
+                  <h2 style={{ fontWeight: 900, fontSize: 24, textTransform: "uppercase", margin: "0 0 4px" }}>{t.menu.profile}</h2>
+                  {session?.user?.email && (
+                    <div style={{ fontSize: 12, opacity: 0.45, letterSpacing: "0.01em" }}>{session.user.email}</div>
+                  )}
+                </div>
                 {signOutConfirm ? (
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                     <span style={{ fontSize: 12, opacity: 0.75, color: pal.ink }}>{t.auth.signOutConfirm}</span>

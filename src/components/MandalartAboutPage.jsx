@@ -1,13 +1,15 @@
 import React from "react";
 import { Target, GitBranch, PenLine, Lightbulb, BookOpen } from "lucide-react";
 import OhtaniMandalart from "./OhtaniMandalart";
+import { useViewport } from "../hooks/useViewport";
 
 const ICONS = [Target, GitBranch, PenLine, BookOpen];
 
 export default function MandalartAboutPage({ pal, t }) {
   const about = t.mandalartAbout;
+  const { isMobile } = useViewport();
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 32, alignItems: "start", maxWidth: 960, margin: "0 auto" }}>
+    <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 340px", gap: isMobile ? 24 : 32, alignItems: "start", maxWidth: 960, margin: "0 auto" }}>
       {/* Left: main text */}
       <div>
         <h2 style={{ fontWeight: 900, fontSize: 28, textTransform: "uppercase", margin: "0 0 20px", color: pal.ink, letterSpacing: "-0.01em" }}>

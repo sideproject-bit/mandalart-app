@@ -3,7 +3,7 @@ import { X, Volume2, VolumeX, Moon, Sun, Globe, Music2, Bell, BellOff } from "lu
 import { THEMES } from "../theme";
 
 // Full-screen settings sheet for mobile — replaces the desktop TopControls bar.
-export default function MobileSettings({ pal, dark, setDark, lang, setLang, theme, setTheme, soundOn, setSoundOn, notifOn, toggleNotif, t, play, music, onClose }) {
+export default function MobileSettings({ pal, dark, setDark, lang, setLang, theme, setTheme, soundOn, setSoundOn, notifOn, toggleNotif, t, play, music, startView, setStartView, onClose }) {
   const ink = pal.ink;
   const acc = pal.accent;
   const border = `1px solid ${ink}22`;
@@ -96,6 +96,16 @@ export default function MobileSettings({ pal, dark, setDark, lang, setLang, them
             {t.notifications || (lang === "ko" ? "알림" : "Notifications")}
             <span style={{ marginLeft: "auto", fontSize: 12, fontWeight: 700, opacity: 0.6 }}>{notifOn ? "ON" : "OFF"}</span>
           </Row>
+        </Section>
+
+        {/* Start screen */}
+        <Section title={lang === "ko" ? "시작 화면" : "Start Screen"}>
+          {[["home", lang === "ko" ? "홈" : "Home"], ["planner", lang === "ko" ? "플래너" : "Planner"]].map(([key, label]) => (
+            <Row key={key} onClick={() => { setStartView?.(key); play("E5", "32n"); }} active={startView === key}>
+              {label}
+              {startView === key && <span style={{ marginLeft: "auto", color: acc, fontWeight: 800 }}>✓</span>}
+            </Row>
+          ))}
         </Section>
 
         {/* Music */}

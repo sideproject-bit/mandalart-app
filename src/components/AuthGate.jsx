@@ -221,6 +221,8 @@ export default function AuthGate({ play }) {
   const INK = "#F2EDE1";
   const ACCENT = "#C7382E";
 
+  const [signUpDone, setSignUpDone] = useState(false);
+
   const submit = async (e) => {
     e.preventDefault();
     if (mode === "signup" && !termsAccepted) { setError(t.auth.termsRequired); return; }
@@ -230,7 +232,8 @@ export default function AuthGate({ play }) {
       ? await signIn(email, password)
       : await signUp(email, password, username);
     setBusy(false);
-    if (error) setError(translateAuthError(error.message, lang));
+    if (error) { setError(translateAuthError(error.message, lang)); return; }
+    if (mode === "signup") setSignUpDone(true);
   };
 
   return (
@@ -305,6 +308,11 @@ export default function AuthGate({ play }) {
             </div>
           )}
 
+          {signUpDone && (
+            <div style={{ background: "#1a3a1a", border: "1px solid #3CA45C", borderRadius: 4, padding: "12px 14px", marginBottom: 14, fontSize: 12.5, lineHeight: 1.6, color: "#7ed99a" }}>
+              {t.auth.signUpDone}
+            </div>
+          )}
           {error && <p style={{ color: "#ff6b6b", fontSize: 12, margin: "0 0 10px" }}>{error}</p>}
 
           <button

@@ -3,6 +3,13 @@
 /* Prevent mid-word breaks in Korean (keep-all = normal for non-CJK) */
 * { word-break: keep-all; }
 
+/* Prevent text selection on UI elements; allow on inputs/textareas */
+body { -webkit-user-select: none; user-select: none; }
+input, textarea, [contenteditable] { -webkit-user-select: text; user-select: text; }
+
+/* Prevent iOS auto-zoom on input focus (font-size must be >= 16px) */
+input, textarea, select { font-size: max(16px, 1em); }
+
 html, body, #root {
   margin: 0;
   padding: 0;
