@@ -23,7 +23,7 @@ export default function MandalartAboutPage({ pal, t }) {
               <div style={{ flexShrink: 0, width: 32, height: 32, background: pal.accent2 + "22", border: `1px solid ${pal.accent2}44`, display: "flex", alignItems: "center", justifyContent: "center", marginTop: 2 }}>
                 <Icon size={15} color={pal.accent2} />
               </div>
-              <p style={{ fontSize: isMobile ? 13 : 14, lineHeight: 1.7, color: pal.ink, margin: 0, opacity: 0.88, wordBreak: "keep-all" }}>
+              <p style={{ flex: 1, minWidth: 0, fontSize: isMobile ? 13 : 14, lineHeight: 1.7, color: pal.ink, margin: 0, opacity: 0.88, wordBreak: "break-word", overflowWrap: "break-word" }}>
                 {para}
               </p>
             </div>
