@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Globe } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { supabase } from "../lib/supabaseClient";
 import { T } from "../copy";
 import WelcomeScreen from "./WelcomeScreen";
 
@@ -197,7 +198,7 @@ export default function AuthGate({ play }) {
   const [lang, setLang] = useState("en");
   const t = T[lang];
 
-  const [mode, setMode] = useState("signin");
+  const [mode, setMode] = useState("signin"); // "signin" | "signup" | "reset"
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
@@ -205,6 +206,7 @@ export default function AuthGate({ play }) {
   const [showTerms, setShowTerms] = useState(false);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [resetDone, setResetDone] = useState(false);
 
   if (screen === "welcome") {
     return <WelcomeScreen play={play} onFinish={() => setScreen("insert")} />;
@@ -225,6 +227,14 @@ export default function AuthGate({ play }) {
 
   const submit = async (e) => {
     e.preventDefault();
+    if (mode === "reset") {
+      setError(""); setBusy(true);
+      const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/reset-password` });
+      setBusy(false);
+      if (error) { setError(translateAuthError(error.message, lang)); return; }
+      setResetDone(true);
+      return;
+    }
     if (mode === "signup" && !termsAccepted) { setError(t.auth.termsRequired); return; }
     setError("");
     setBusy(true);
@@ -235,6 +245,8 @@ export default function AuthGate({ play }) {
     if (error) { setError(translateAuthError(error.message, lang)); return; }
     if (mode === "signup") setSignUpDone(true);
   };
+
+  const switchMode = (m) => { setMode(m); setError(""); setTermsAccepted(false); setShowTerms(false); setResetDone(false); };
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: 24, position: "relative" }}>
@@ -287,7 +299,7 @@ export default function AuthGate({ play }) {
             </>
           )}
           <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder={t.auth.email} style={inputStyle()} required />
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder={t.auth.password} style={inputStyle()} required minLength={6} />
+          {mode !== "reset" && <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder={t.auth.password} style={inputStyle()} required minLength={6} />}
 
           {mode === "signup" && (
             <div style={{ marginBottom: 12 }}>
@@ -313,22 +325,41 @@ export default function AuthGate({ play }) {
               {t.auth.signUpDone}
             </div>
           )}
+          {resetDone && (
+            <div style={{ background: "#1a3a1a", border: "1px solid #3CA45C", borderRadius: 4, padding: "12px 14px", marginBottom: 14, fontSize: 12.5, lineHeight: 1.6, color: "#7ed99a" }}>
+              {t.auth.resetDone || (lang === "ko" ? "비밀번호 재설정 링크를 이메일로 보냈어요." : "Password reset email sent — check your inbox.")}
+            </div>
+          )}
           {error && <p style={{ color: "#ff6b6b", fontSize: 12, margin: "0 0 10px" }}>{error}</p>}
 
-          <button
-            type="submit"
-            disabled={busy || (mode === "signup" && !termsAccepted)}
-            style={{ width: "100%", background: busy || (mode === "signup" && !termsAccepted) ? ACCENT + "66" : ACCENT, color: "#fff", border: "none", padding: "10px 0", fontWeight: 700, fontSize: 13, cursor: busy || (mode === "signup" && !termsAccepted) ? "not-allowed" : "pointer", marginTop: 4 }}
-          >
-            {mode === "signin" ? t.auth.signIn : t.auth.signUp}
-          </button>
+          {!resetDone && (
+            <button
+              type="submit"
+              disabled={busy || (mode === "signup" && !termsAccepted)}
+              style={{ width: "100%", background: busy || (mode === "signup" && !termsAccepted) ? ACCENT + "66" : ACCENT, color: "#fff", border: "none", padding: "10px 0", fontWeight: 700, fontSize: 13, cursor: busy || (mode === "signup" && !termsAccepted) ? "not-allowed" : "pointer", marginTop: 4 }}
+            >
+              {mode === "signin" ? t.auth.signIn : mode === "signup" ? t.auth.signUp : (t.auth.resetSend || (lang === "ko" ? "재설정 이메일 보내기" : "Send reset email"))}
+            </button>
+          )}
+          {mode === "signin" && !resetDone && (
+            <button type="button" onClick={() => switchMode("reset")}
+              style={{ background: "none", border: "none", color: INK, opacity: 0.4, fontSize: 11, marginTop: 8, cursor: "pointer", width: "100%", textAlign: "right" }}>
+              {t.auth.forgotPassword || (lang === "ko" ? "비밀번호를 잊으셨나요?" : "Forgot password?")}
+            </button>
+          )}
           <button
             type="button"
-            onClick={() => { setMode((m) => (m === "signin" ? "signup" : "signin")); setError(""); setTermsAccepted(false); setShowTerms(false); }}
-            style={{ background: "none", border: "none", color: INK, opacity: 0.55, fontSize: 12, marginTop: 12, cursor: "pointer", width: "100%" }}
+            onClick={() => switchMode(mode === "signup" ? "signin" : "signup")}
+            style={{ background: "none", border: "none", color: INK, opacity: 0.55, fontSize: 12, marginTop: mode === "signin" ? 4 : 12, cursor: "pointer", width: "100%" }}
           >
-            {mode === "signin" ? t.auth.toSignUp : t.auth.toSignIn}
+            {mode === "signin" || mode === "reset" ? t.auth.toSignUp : t.auth.toSignIn}
           </button>
+          {mode === "reset" && (
+            <button type="button" onClick={() => switchMode("signin")}
+              style={{ background: "none", border: "none", color: INK, opacity: 0.4, fontSize: 11, marginTop: 4, cursor: "pointer", width: "100%" }}>
+              ← {t.auth.backToSignIn || (lang === "ko" ? "로그인으로 돌아가기" : "Back to sign in")}
+            </button>
+          )}
         </form>
 
         {showTerms && mode === "signup" && (

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { User, HelpCircle, ArrowLeft, BookOpen, Grid3x3, CalendarDays, Menu, X, Settings } from "lucide-react";
+import { User, HelpCircle, ArrowLeft, BookOpen, Grid3x3, CalendarDays, Menu, X, Settings, Bell } from "lucide-react";
 import TomatoIcon from "./components/TomatoIcon";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { paletteFor, THEMES } from "./theme";
@@ -7,6 +7,9 @@ import { T } from "./copy";
 import { useSound } from "./useSound";
 import { useViewport } from "./hooks/useViewport";
 import { useEventNotifications } from "./hooks/useEventNotifications";
+import { useNotifications } from "./hooks/useNotifications";
+import NotificationPanel from "./components/NotificationPanel";
+import NotificationBanner from "./components/NotificationBanner";
 import { useMusicPlayer } from "./useMusic";
 import AuthGate from "./components/AuthGate";
 import Onboarding from "./components/Onboarding";
@@ -57,6 +60,7 @@ function AppShell() {
   const [pomodoroGuideOpen,  setPomodoroGuideOpen]  = useState(false);
   const [plannerGuideOpen,   setPlannerGuideOpen]   = useState(false);
   const [mandalartGuideOpen, setMandalartGuideOpen] = useState(false);
+  const [notifPanelOpen, setNotifPanelOpen] = useState(false);
   const prevUserIdRef = useRef(null);
 
   const pal = paletteFor(theme, dark);
@@ -65,6 +69,7 @@ function AppShell() {
   const music = useMusicPlayer();
   const { isMobile } = useViewport();
   useEventNotifications(notifOn, session?.user?.id, t);
+  const { notifications, unreadCount, banner, setBanner, addNotification, markRead, markAllRead, deleteNotification, clearAll: clearAllNotifs } = useNotifications(session?.user?.id);
 
   // Persist dark/lang/notification preferences
   useEffect(() => { localStorage.setItem("grida_dark", dark ? "1" : "0"); }, [dark]);
@@ -230,6 +235,19 @@ function AppShell() {
         .home-tagline { animation: slideUpIn 0.65s cubic-bezier(0.22,1,0.36,1) 0.22s both; }
       `}</style>
 
+      <NotificationBanner banner={banner} pal={pal} onDismiss={() => setBanner(null)} />
+      {notifPanelOpen && (
+        <NotificationPanel
+          pal={pal} lang={lang} t={t}
+          notifications={notifications} unreadCount={unreadCount}
+          onClose={() => setNotifPanelOpen(false)}
+          onMarkAllRead={markAllRead}
+          onRead={markRead}
+          onDelete={deleteNotification}
+          onClearAll={clearAllNotifs}
+        />
+      )}
+
       {onboardingOpen && <Onboarding t={t} pal={pal} play={play} onClose={closeOnboarding} lang={lang} setLang={setLang} />}
       {showWelcome && <WelcomeScreen play={play} onFinish={() => setShowWelcome(false)} />}
       {mobileSettingsOpen && isMobile && (
@@ -301,7 +319,7 @@ function AppShell() {
             }}>
               <FloatingBlocks pal={pal} theme={theme} />
 
-              {/* Top-right: Lang toggle + Hamburger */}
+              {/* Top-right: Lang toggle + Bell + Hamburger */}
               <div style={{ position: "absolute", top: 16, right: 16, zIndex: 3, display: "flex", gap: 8 }}>
                 <button onClick={() => setLang(lang === "en" ? "ko" : "en")} style={{
                   width: 44, height: 44, display: "flex", alignItems: "center", justifyContent: "center",
@@ -309,6 +327,13 @@ function AppShell() {
                   fontWeight: 800, fontSize: 12, letterSpacing: "0.04em",
                 }}>
                   {lang === "en" ? "KO" : "EN"}
+                </button>
+                <button onClick={() => { setNotifPanelOpen(true); play("C5", "16n"); }} aria-label="Notifications" style={{
+                  position: "relative", width: 44, height: 44, display: "flex", alignItems: "center", justifyContent: "center",
+                  background: "rgba(0,0,0,0.28)", border: "none", color: "#fff", cursor: "pointer",
+                }}>
+                  <Bell size={20} />
+                  {unreadCount > 0 && <span style={{ position: "absolute", top: 9, right: 9, width: 8, height: 8, background: "#C7382E", borderRadius: "50%", pointerEvents: "none" }} />}
                 </button>
                 <button onClick={openMenu} aria-label="Menu" style={{
                   width: 44, height: 44, display: "flex", alignItems: "center", justifyContent: "center",
@@ -485,10 +510,17 @@ function AppShell() {
               </button>
             </div>
             {isMobile ? (
-              <button onClick={() => { setMobileSettingsOpen(true); play("F5", "16n"); }} aria-label="Settings"
-                style={{ background: "none", border: `1px solid ${pal.ink}33`, color: pal.ink, cursor: "pointer", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                <Settings size={18} />
-              </button>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button onClick={() => { setNotifPanelOpen(true); play("C5", "16n"); }} aria-label="Notifications"
+                  style={{ position: "relative", background: "none", border: `1px solid ${pal.ink}33`, color: pal.ink, cursor: "pointer", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Bell size={18} />
+                  {unreadCount > 0 && <span style={{ position: "absolute", top: 6, right: 6, width: 7, height: 7, background: "#C7382E", borderRadius: "50%", pointerEvents: "none" }} />}
+                </button>
+                <button onClick={() => { setMobileSettingsOpen(true); play("F5", "16n"); }} aria-label="Settings"
+                  style={{ background: "none", border: `1px solid ${pal.ink}33`, color: pal.ink, cursor: "pointer", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Settings size={18} />
+                </button>
+              </div>
             ) : <TopControls pal={pal} dark={dark} setDark={setDark} lang={lang} setLang={setLang} theme={theme} setTheme={setTheme} soundOn={soundOn} setSoundOn={setSoundOn} notifOn={notifOn} toggleNotif={toggleNotif} t={t} play={play} music={music} dropdownUp={false} onHome={() => navigateTo("home")} />}
           </div>
           <MandalartGrid key={currentMandalartId} mandalartId={currentMandalartId} pal={pal} t={t} soundOn={soundOn} />
@@ -507,10 +539,17 @@ function AppShell() {
               </button>
             </div>
             {isMobile ? (
-              <button onClick={() => { setMobileSettingsOpen(true); play("F5", "16n"); }} aria-label="Settings"
-                style={{ background: "none", border: `1px solid ${pal.ink}33`, color: pal.ink, cursor: "pointer", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                <Settings size={18} />
-              </button>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button onClick={() => { setNotifPanelOpen(true); play("C5", "16n"); }} aria-label="Notifications"
+                  style={{ position: "relative", background: "none", border: `1px solid ${pal.ink}33`, color: pal.ink, cursor: "pointer", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Bell size={18} />
+                  {unreadCount > 0 && <span style={{ position: "absolute", top: 6, right: 6, width: 7, height: 7, background: "#C7382E", borderRadius: "50%", pointerEvents: "none" }} />}
+                </button>
+                <button onClick={() => { setMobileSettingsOpen(true); play("F5", "16n"); }} aria-label="Settings"
+                  style={{ background: "none", border: `1px solid ${pal.ink}33`, color: pal.ink, cursor: "pointer", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Settings size={18} />
+                </button>
+              </div>
             ) : <TopControls pal={pal} dark={dark} setDark={setDark} lang={lang} setLang={setLang} theme={theme} setTheme={setTheme} soundOn={soundOn} setSoundOn={setSoundOn} notifOn={notifOn} toggleNotif={toggleNotif} t={t} play={play} music={music} dropdownUp={false} onHome={() => navigateTo("home")} />}
           </div>
           <Manage
@@ -530,10 +569,17 @@ function AppShell() {
               <ArrowLeft size={14} /> {t.back}
             </button>
             {isMobile ? (
-              <button onClick={() => { setMobileSettingsOpen(true); play("F5", "16n"); }} aria-label="Settings"
-                style={{ background: "none", border: `1px solid ${pal.ink}33`, color: pal.ink, cursor: "pointer", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                <Settings size={18} />
-              </button>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button onClick={() => { setNotifPanelOpen(true); play("C5", "16n"); }} aria-label="Notifications"
+                  style={{ position: "relative", background: "none", border: `1px solid ${pal.ink}33`, color: pal.ink, cursor: "pointer", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Bell size={18} />
+                  {unreadCount > 0 && <span style={{ position: "absolute", top: 6, right: 6, width: 7, height: 7, background: "#C7382E", borderRadius: "50%", pointerEvents: "none" }} />}
+                </button>
+                <button onClick={() => { setMobileSettingsOpen(true); play("F5", "16n"); }} aria-label="Settings"
+                  style={{ background: "none", border: `1px solid ${pal.ink}33`, color: pal.ink, cursor: "pointer", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Settings size={18} />
+                </button>
+              </div>
             ) : <TopControls pal={pal} dark={dark} setDark={setDark} lang={lang} setLang={setLang} theme={theme} setTheme={setTheme} soundOn={soundOn} setSoundOn={setSoundOn} notifOn={notifOn} toggleNotif={toggleNotif} t={t} play={play} music={music} dropdownUp={false} onHome={() => navigateTo("home")} />}
           </div>
           {/* Mobile: segmented tabs; Desktop: 2-column */}
@@ -583,6 +629,7 @@ function AppShell() {
                 myId={myId}
                 myCode={myCode}
                 notifOn={notifOn}
+                addNotification={addNotification}
                 onViewFriend={(friend) => { navigateTo("friendList", { friend }); play("C5", "16n"); }}
               />
               {/* Delete account */}
@@ -658,10 +705,17 @@ function AppShell() {
               <ArrowLeft size={14} /> {t.back}
             </button>
             {isMobile ? (
-              <button onClick={() => { setMobileSettingsOpen(true); play("F5", "16n"); }} aria-label="Settings"
-                style={{ background: "none", border: `1px solid ${pal.ink}33`, color: pal.ink, cursor: "pointer", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                <Settings size={18} />
-              </button>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button onClick={() => { setNotifPanelOpen(true); play("C5", "16n"); }} aria-label="Notifications"
+                  style={{ position: "relative", background: "none", border: `1px solid ${pal.ink}33`, color: pal.ink, cursor: "pointer", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Bell size={18} />
+                  {unreadCount > 0 && <span style={{ position: "absolute", top: 6, right: 6, width: 7, height: 7, background: "#C7382E", borderRadius: "50%", pointerEvents: "none" }} />}
+                </button>
+                <button onClick={() => { setMobileSettingsOpen(true); play("F5", "16n"); }} aria-label="Settings"
+                  style={{ background: "none", border: `1px solid ${pal.ink}33`, color: pal.ink, cursor: "pointer", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Settings size={18} />
+                </button>
+              </div>
             ) : <TopControls pal={pal} dark={dark} setDark={setDark} lang={lang} setLang={setLang} theme={theme} setTheme={setTheme} soundOn={soundOn} setSoundOn={setSoundOn} notifOn={notifOn} toggleNotif={toggleNotif} t={t} play={play} music={music} dropdownUp={false} onHome={() => navigateTo("home")} />}
           </div>
           <FriendMandalartList
@@ -680,10 +734,17 @@ function AppShell() {
               <ArrowLeft size={14} /> {t.back}
             </button>
             {isMobile ? (
-              <button onClick={() => { setMobileSettingsOpen(true); play("F5", "16n"); }} aria-label="Settings"
-                style={{ background: "none", border: `1px solid ${pal.ink}33`, color: pal.ink, cursor: "pointer", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                <Settings size={18} />
-              </button>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button onClick={() => { setNotifPanelOpen(true); play("C5", "16n"); }} aria-label="Notifications"
+                  style={{ position: "relative", background: "none", border: `1px solid ${pal.ink}33`, color: pal.ink, cursor: "pointer", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Bell size={18} />
+                  {unreadCount > 0 && <span style={{ position: "absolute", top: 6, right: 6, width: 7, height: 7, background: "#C7382E", borderRadius: "50%", pointerEvents: "none" }} />}
+                </button>
+                <button onClick={() => { setMobileSettingsOpen(true); play("F5", "16n"); }} aria-label="Settings"
+                  style={{ background: "none", border: `1px solid ${pal.ink}33`, color: pal.ink, cursor: "pointer", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Settings size={18} />
+                </button>
+              </div>
             ) : <TopControls pal={pal} dark={dark} setDark={setDark} lang={lang} setLang={setLang} theme={theme} setTheme={setTheme} soundOn={soundOn} setSoundOn={setSoundOn} notifOn={notifOn} toggleNotif={toggleNotif} t={t} play={play} music={music} dropdownUp={false} onHome={() => navigateTo("home")} />}
           </div>
           <AboutPage pal={pal} t={t} dark={dark} />
@@ -697,10 +758,17 @@ function AppShell() {
               <ArrowLeft size={14} /> {t.back}
             </button>
             {isMobile ? (
-              <button onClick={() => { setMobileSettingsOpen(true); play("F5", "16n"); }} aria-label="Settings"
-                style={{ background: "none", border: `1px solid ${pal.ink}33`, color: pal.ink, cursor: "pointer", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                <Settings size={18} />
-              </button>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button onClick={() => { setNotifPanelOpen(true); play("C5", "16n"); }} aria-label="Notifications"
+                  style={{ position: "relative", background: "none", border: `1px solid ${pal.ink}33`, color: pal.ink, cursor: "pointer", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Bell size={18} />
+                  {unreadCount > 0 && <span style={{ position: "absolute", top: 6, right: 6, width: 7, height: 7, background: "#C7382E", borderRadius: "50%", pointerEvents: "none" }} />}
+                </button>
+                <button onClick={() => { setMobileSettingsOpen(true); play("F5", "16n"); }} aria-label="Settings"
+                  style={{ background: "none", border: `1px solid ${pal.ink}33`, color: pal.ink, cursor: "pointer", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Settings size={18} />
+                </button>
+              </div>
             ) : <TopControls pal={pal} dark={dark} setDark={setDark} lang={lang} setLang={setLang} theme={theme} setTheme={setTheme} soundOn={soundOn} setSoundOn={setSoundOn} notifOn={notifOn} toggleNotif={toggleNotif} t={t} play={play} music={music} dropdownUp={false} onHome={() => navigateTo("home")} />}
           </div>
           <MandalartAboutPage pal={pal} t={t} />
@@ -719,10 +787,17 @@ function AppShell() {
               </button>
             </div>
             {isMobile ? (
-              <button onClick={() => { setMobileSettingsOpen(true); play("F5", "16n"); }} aria-label="Settings"
-                style={{ background: "none", border: `1px solid ${pal.ink}33`, color: pal.ink, cursor: "pointer", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                <Settings size={18} />
-              </button>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button onClick={() => { setNotifPanelOpen(true); play("C5", "16n"); }} aria-label="Notifications"
+                  style={{ position: "relative", background: "none", border: `1px solid ${pal.ink}33`, color: pal.ink, cursor: "pointer", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Bell size={18} />
+                  {unreadCount > 0 && <span style={{ position: "absolute", top: 6, right: 6, width: 7, height: 7, background: "#C7382E", borderRadius: "50%", pointerEvents: "none" }} />}
+                </button>
+                <button onClick={() => { setMobileSettingsOpen(true); play("F5", "16n"); }} aria-label="Settings"
+                  style={{ background: "none", border: `1px solid ${pal.ink}33`, color: pal.ink, cursor: "pointer", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Settings size={18} />
+                </button>
+              </div>
             ) : <TopControls pal={pal} dark={dark} setDark={setDark} lang={lang} setLang={setLang} theme={theme} setTheme={setTheme} soundOn={soundOn} setSoundOn={setSoundOn} notifOn={notifOn} toggleNotif={toggleNotif} t={t} play={play} music={music} dropdownUp={false} onHome={() => navigateTo("home")} />}
           </div>
           <Planner t={t} pal={pal} dark={dark} userId={myId} theme={theme} lang={lang} />
@@ -741,13 +816,20 @@ function AppShell() {
               </button>
             </div>
             {isMobile ? (
-              <button onClick={() => { setMobileSettingsOpen(true); play("F5", "16n"); }} aria-label="Settings"
-                style={{ background: "none", border: `1px solid ${pal.ink}33`, color: pal.ink, cursor: "pointer", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                <Settings size={18} />
-              </button>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button onClick={() => { setNotifPanelOpen(true); play("C5", "16n"); }} aria-label="Notifications"
+                  style={{ position: "relative", background: "none", border: `1px solid ${pal.ink}33`, color: pal.ink, cursor: "pointer", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Bell size={18} />
+                  {unreadCount > 0 && <span style={{ position: "absolute", top: 6, right: 6, width: 7, height: 7, background: "#C7382E", borderRadius: "50%", pointerEvents: "none" }} />}
+                </button>
+                <button onClick={() => { setMobileSettingsOpen(true); play("F5", "16n"); }} aria-label="Settings"
+                  style={{ background: "none", border: `1px solid ${pal.ink}33`, color: pal.ink, cursor: "pointer", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Settings size={18} />
+                </button>
+              </div>
             ) : <TopControls pal={pal} dark={dark} setDark={setDark} lang={lang} setLang={setLang} theme={theme} setTheme={setTheme} soundOn={soundOn} setSoundOn={setSoundOn} notifOn={notifOn} toggleNotif={toggleNotif} t={t} play={play} music={music} dropdownUp={false} onHome={() => navigateTo("home")} />}
           </div>
-          <PomodoroTimer t={t} pal={pal} dark={dark} theme={theme} notifOn={notifOn} userId={myId} />
+          <PomodoroTimer t={t} pal={pal} dark={dark} theme={theme} notifOn={notifOn} userId={myId} onNotif={addNotification} />
         </div>
       )}
 
@@ -758,10 +840,17 @@ function AppShell() {
               <ArrowLeft size={14} /> {t.back}
             </button>
             {isMobile ? (
-              <button onClick={() => { setMobileSettingsOpen(true); play("F5", "16n"); }} aria-label="Settings"
-                style={{ background: "none", border: `1px solid ${pal.ink}33`, color: pal.ink, cursor: "pointer", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                <Settings size={18} />
-              </button>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button onClick={() => { setNotifPanelOpen(true); play("C5", "16n"); }} aria-label="Notifications"
+                  style={{ position: "relative", background: "none", border: `1px solid ${pal.ink}33`, color: pal.ink, cursor: "pointer", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Bell size={18} />
+                  {unreadCount > 0 && <span style={{ position: "absolute", top: 6, right: 6, width: 7, height: 7, background: "#C7382E", borderRadius: "50%", pointerEvents: "none" }} />}
+                </button>
+                <button onClick={() => { setMobileSettingsOpen(true); play("F5", "16n"); }} aria-label="Settings"
+                  style={{ background: "none", border: `1px solid ${pal.ink}33`, color: pal.ink, cursor: "pointer", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Settings size={18} />
+                </button>
+              </div>
             ) : <TopControls pal={pal} dark={dark} setDark={setDark} lang={lang} setLang={setLang} theme={theme} setTheme={setTheme} soundOn={soundOn} setSoundOn={setSoundOn} notifOn={notifOn} toggleNotif={toggleNotif} t={t} play={play} music={music} dropdownUp={false} onHome={() => navigateTo("home")} />}
           </div>
           <MandalartGrid

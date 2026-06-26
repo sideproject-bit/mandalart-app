@@ -2,22 +2,26 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Copy, Search, UserPlus, Check, X, Eye } from "lucide-react";
 import { sendFriendRequest, acceptFriendRequest, declineFriendRequest, listIncomingRequests, listFriends } from "../api/friendsApi";
 
-export default function FriendsPanel({ pal, t, play, myId, myCode, onViewFriend, notifOn }) {
+export default function FriendsPanel({ pal, t, play, myId, myCode, onViewFriend, notifOn, addNotification }) {
   const [code, setCode] = useState("");
   const [feedback, setFeedback] = useState(null); // { type: "error" | "success", text }
   const [friends, setFriends] = useState([]);
   const [incoming, setIncoming] = useState([]);
   const [copied, setCopied] = useState(false);
   const prevIncomingIds = useRef(null);
+  const prevFriendIds = useRef(null);
 
   const refresh = useCallback(async () => {
     const [f, inc] = await Promise.all([listFriends(myId), listIncomingRequests(myId)]);
-    setFriends(f.map((p) => ({ id: p.id, code: `${p.username}#${p.tag}` })));
+    const newFriends = f.map((p) => ({ id: p.id, code: `${p.username}#${p.tag}` }));
+    setFriends(newFriends);
     const newIncoming = inc.map((r) => ({ id: r.requesterId, code: `${r.username}#${r.tag}` }));
     setIncoming(newIncoming);
 
-    // Fire notification for new requests (skip on first load)
-    if (prevIncomingIds.current !== null && notifOn && Notification.permission === "granted") {
+    const isFirstLoad = prevIncomingIds.current === null;
+
+    // Fire notification for new incoming requests (skip on first load)
+    if (!isFirstLoad && notifOn && Notification.permission === "granted") {
       const prev = prevIncomingIds.current;
       newIncoming.forEach((r) => {
         if (!prev.includes(r.id)) {
@@ -27,8 +31,25 @@ export default function FriendsPanel({ pal, t, play, myId, myCode, onViewFriend,
         }
       });
     }
+    if (!isFirstLoad) {
+      const prevIds = prevIncomingIds.current;
+      newIncoming.forEach((r) => {
+        if (!prevIds.includes(r.id)) {
+          addNotification?.({ type: "info", title: t.friends.notifTitle || "New friend request", body: t.friends.notifBody ? t.friends.notifBody(r.code) : `${r.code}` });
+        }
+      });
+      // Detect friend accepted: was in incoming, now in friends
+      const prevFIds = prevFriendIds.current ?? [];
+      newFriends.forEach((fr) => {
+        if (!prevFIds.includes(fr.id)) {
+          addNotification?.({ type: "success", title: t.friends.acceptedTitle || "Friend added", body: t.friends.acceptedBody ? t.friends.acceptedBody(fr.code) : fr.code });
+        }
+      });
+    }
+
     prevIncomingIds.current = newIncoming.map((r) => r.id);
-  }, [myId, notifOn, t]);
+    prevFriendIds.current = newFriends.map((f) => f.id);
+  }, [myId, notifOn, t, addNotification]);
 
   useEffect(() => { refresh(); }, [refresh]);
 

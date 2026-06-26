@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import * as Tone from "tone";
-import { X, ChevronUp, ChevronDown, Trash2 } from "lucide-react";
+import { X, ChevronUp, ChevronDown, Trash2, Zap } from "lucide-react";
 import BreathingBlocks from "./BreathingBlocks";
 
 const COLS = 9;
@@ -9,7 +9,7 @@ const TOTAL = COLS * ROWS; // 45 minutes max
 
 const LI_MAX_MS = 24 * 3600 * 1000; // locking-in stopwatch cap: 24h
 
-export default function PomodoroTimer({ t, pal, dark, theme, notifOn, userId }) {
+export default function PomodoroTimer({ t, pal, dark, theme, notifOn, userId, onNotif }) {
   const p = t.pomodoro;
   const li = p.lockin;
 
@@ -25,6 +25,26 @@ export default function PomodoroTimer({ t, pal, dark, theme, notifOn, userId }) 
 
   const [dragging, setDragging] = useState(false);
   const dragStart = useRef(null);
+
+  // Wake lock
+  const [wakeLockOn, setWakeLockOn] = useState(false);
+  const wakeLockRef = useRef(null);
+  const toggleWakeLock = async () => {
+    if (wakeLockOn) {
+      try { await wakeLockRef.current?.release(); } catch (_) {}
+      wakeLockRef.current = null;
+      setWakeLockOn(false);
+    } else {
+      try {
+        if ("wakeLock" in navigator) {
+          wakeLockRef.current = await navigator.wakeLock.request("screen");
+          wakeLockRef.current.addEventListener("release", () => setWakeLockOn(false));
+          setWakeLockOn(true);
+        }
+      } catch (_) {}
+    }
+  };
+  useEffect(() => () => { wakeLockRef.current?.release().catch(() => {}); }, []);
 
   // ── Locking-in (long-focus stopwatch) mode ──
   const [mode, setMode] = useState("timer"); // "timer" | "lockin"
@@ -71,8 +91,13 @@ export default function PomodoroTimer({ t, pal, dark, theme, notifOn, userId }) 
 
   // Celebrate when the focus goal is reached (but keep counting)
   useEffect(() => {
-    if (liGoalReached && !liGoalFiredRef.current) { liGoalFiredRef.current = true; playChime(); }
+    if (liGoalReached && !liGoalFiredRef.current) {
+      liGoalFiredRef.current = true;
+      playChime();
+      onNotif?.({ type: "success", title: li.congrats, body: `${fmtDur(liGoalMs)} ${li.elapsed || ""}`.trim() });
+    }
     if (!liGoalReached) liGoalFiredRef.current = false;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [liGoalReached]);
 
   function liReset() { setLiRunning(false); setLiElapsedMs(0); liGoalFiredRef.current = false; }
@@ -152,10 +177,10 @@ export default function PomodoroTimer({ t, pal, dark, theme, notifOn, userId }) 
 
   function fireComplete() {
     playChime();
-
     if (notifOn && typeof Notification !== "undefined" && Notification.permission === "granted") {
       new Notification(p.notifTitle, { body: p.notifBody(goal) });
     }
+    onNotif?.({ type: "success", title: p.notifTitle, body: p.notifBody(goal) });
   }
 
   function requestNotifPermission() {
@@ -326,6 +351,12 @@ export default function PomodoroTimer({ t, pal, dark, theme, notifOn, userId }) 
                 )}
                 <button onClick={liSave} style={btnStyle(liSavedFlash ? "#3CA45C" : pal.accent3, "#1a1a1a", 1)}>{liSavedFlash ? li.saved : li.save}</button>
                 <button onClick={liReset} style={btnStyle("#C7382E", "#fff", 1)}>{li.reset}</button>
+                {"wakeLock" in navigator && (
+                  <button onClick={toggleWakeLock} title={wakeLockOn ? (li.wakeLockOff || "Screen wake off") : (li.wakeLockOn || "Keep screen on")}
+                    style={{ ...btnStyle(wakeLockOn ? liAccent + "33" : (dark ? "#2a2a2a" : "#f0ede4"), ink, 1), display: "flex", alignItems: "center", gap: 6, padding: "10px 14px", border: wakeLockOn ? `1px solid ${liAccent}` : `1px solid ${ink}33` }}>
+                    <Zap size={14} fill={wakeLockOn ? liAccent : "none"} color={wakeLockOn ? liAccent : ink} />
+                  </button>
+                )}
               </div>
               <div style={{ fontSize: 11, opacity: 0.45, textAlign: "center" }}>{li.hint}</div>
             </div>
