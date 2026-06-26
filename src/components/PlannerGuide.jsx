@@ -58,7 +58,32 @@ const STEP_VISUALS = [
       ))}
     </svg>
   ),
-  // Step 4: monthly calendar with dot
+  // Step 4: weekly time grid
+  ({ accent }) => (
+    <svg width={180} height={90} viewBox="0 0 180 90">
+      {/* Day headers */}
+      {["M","T","W","T","F","S","S"].map((d, i) => (
+        <rect key={`h${i}`} x={22 + i * 22} y={6} width={20} height={12} rx={2}
+          fill={i === 2 ? accent + "44" : "#ffffff0a"}
+          stroke={i === 2 ? accent : "#ffffff18"} strokeWidth={i === 2 ? 1.2 : 0.5} />
+      ))}
+      {["M","T","W","T","F","S","S"].map((d, i) => (
+        <text key={`l${i}`} x={32 + i * 22} y={16} textAnchor="middle"
+          fill={i === 2 ? accent : "#fff"} fontSize={7} fontWeight={i === 2 ? 800 : 400} opacity={0.7}>{d}</text>
+      ))}
+      {/* Hour rows */}
+      {[0,1,2,3,4].map(row => (
+        Array.from({ length: 7 }).map((_, col) => (
+          <rect key={`${row}-${col}`} x={22 + col * 22} y={22 + row * 13} width={20} height={11} rx={1}
+            fill="#ffffff06" stroke="#ffffff10" strokeWidth={0.5} />
+        ))
+      ))}
+      {/* Event block on Wednesday */}
+      <rect x={23} y={35} width={18} height={23} rx={2} fill={accent + "bb"} />
+      <rect x={67} y={22} width={18} height={13} rx={2} fill={"#AAD4FF99"} />
+    </svg>
+  ),
+  // Step 5: monthly calendar with dot
   ({ accent }) => (
     <svg width={180} height={90} viewBox="0 0 180 90">
       {Array.from({ length: 35 }).map((_, i) => {
