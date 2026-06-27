@@ -5,7 +5,7 @@ export default function Cell({
   r, c, value, isMain, isHeader, isOuterCenter, onChange, onLink,
   description, onOpenDesc, completed = false, onToggleCompleted,
   pal, t, highlighted, size = "normal", readOnly = false,
-  showIcons = false, cellEditEnabled = true, subGoalDone = false,
+  showIcons = false, cellEditEnabled = true, buttonsHidden = false, subGoalDone = false,
   isDragSrc = false, isDragTgt = false,
   onCellDragStart, onCellDragOver, onCellDrop, onCellDragEnd,
 }) {
@@ -282,15 +282,15 @@ export default function Cell({
           aria-label="note"
           onClick={(e) => {
             e.stopPropagation();
-            if (!cellEditEnabled) onOpenDesc(r, c);
+            if (!buttonsHidden) onOpenDesc(r, c);
           }}
           style={{
             position: "absolute", bottom: 2,
             right: big ? 26 : 16,
             background: "none", border: "none",
             color: pal.ink,
-            opacity: cellEditEnabled ? 0 : (description ? 0.6 : 0.3),
-            pointerEvents: cellEditEnabled ? "none" : "auto",
+            opacity: buttonsHidden ? 0 : (description ? 0.6 : 0.3),
+            pointerEvents: buttonsHidden ? "none" : "auto",
             cursor: "pointer", padding: big ? 4 : 2,
             transition: "opacity 0.2s ease",
           }}
@@ -305,7 +305,7 @@ export default function Cell({
           aria-label={localCompleted ? "uncheck" : "check"}
           onClick={(e) => {
             e.stopPropagation();
-            if (!cellEditEnabled) {
+            if (!buttonsHidden) {
               setLocalCompleted((v) => !v);
               onToggleCompleted?.(r, c);
             }
@@ -313,8 +313,8 @@ export default function Cell({
           style={{
             position: "absolute", bottom: 2, right: 2, background: "none", border: "none",
             color: localCompleted ? (isMondrian ? pal.accent3 : pal.accent) : pal.ink,
-            opacity: cellEditEnabled ? 0 : (localCompleted ? 0.9 : 0.25),
-            pointerEvents: cellEditEnabled ? "none" : "auto",
+            opacity: buttonsHidden ? 0 : (localCompleted ? 0.9 : 0.25),
+            pointerEvents: buttonsHidden ? "none" : "auto",
             cursor: "pointer", padding: big ? 4 : 2,
             transition: "opacity 0.2s ease, color 0.15s ease",
           }}

@@ -314,6 +314,7 @@ export default function MandalartGrid({ mandalartId, pal, t, soundOn, readOnly =
               onDragStart={handleDragStart} onDragOver={handleDragOver} onDrop={handleDrop} onDragEnd={handleDragEnd}
               hideMinimap
               cellEditEnabled={mbEditMode}
+              buttonsHidden={mbEditMode}
             />
           </div>
         )

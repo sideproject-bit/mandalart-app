@@ -4,7 +4,7 @@ import { isHeaderCell, isOuterCenterCell, blockLabel, isBlockAllDone } from "../
 
 export default function CompactBlockView({
   grid, descriptions, completed, focusBlock, setFocusBlock, pal, t, onChange, onLink, onOpenDesc, onToggleCompleted, highlightBlock, play, readOnly = false,
-  dragSrc, dragTgt, onDragStart, onDragOver, onDrop, onDragEnd, hideMinimap = false, cellEditEnabled = true,
+  dragSrc, dragTgt, onDragStart, onDragOver, onDrop, onDragEnd, hideMinimap = false, cellEditEnabled = true, buttonsHidden = false,
 }) {
   const [fbr, fbc] = focusBlock;
   return (
@@ -100,6 +100,7 @@ export default function CompactBlockView({
                   readOnly={readOnly}
                   showIcons={true}
                   cellEditEnabled={cellEditEnabled}
+                  buttonsHidden={buttonsHidden}
                   subGoalDone={subGoalDone}
                   isDragSrc={isSrc}
                   isDragTgt={isTgt}
