@@ -33,6 +33,7 @@ import PlannerGuide from "./components/PlannerGuide";
 import MandalartGuide from "./components/MandalartGuide";
 import Planner from "./components/Planner";
 import MobileSettings from "./components/MobileSettings";
+import ChatPanel from "./components/ChatPanel";
 
 function AppShell() {
   const { session, profile, loading, signOut } = useAuth();
@@ -54,7 +55,8 @@ function AppShell() {
   const [deleteReason, setDeleteReason] = useState("");
   const [deleteFeedback, setDeleteFeedback] = useState("");
   const [deleteBusy, setDeleteBusy] = useState(false);
-  const [profileTab, setProfileTab] = useState("profile"); // "profile" | "guide"
+  const [profileTab, setProfileTab] = useState("profile"); // "profile" | "social"
+  const [aboutTab, setAboutTab] = useState("about"); // "about" | "guide"
   const [startView, setStartView] = useState(() => localStorage.getItem("grida_start_view") || "home");
   const [gridTutorialOpen, setGridTutorialOpen] = useState(false);
   const [pomodoroGuideOpen,  setPomodoroGuideOpen]  = useState(false);
@@ -585,7 +587,7 @@ function AppShell() {
           {/* Mobile: segmented tabs; Desktop: 2-column */}
           {isMobile && (
             <div style={{ display: "flex", marginBottom: 24, border: `2px solid ${pal.ink}`, overflow: "hidden" }}>
-              {[["profile", t.menu.profile], ["guide", t.guide.tabGuide]].map(([key, label]) => (
+              {[["profile", t.menu.profile], ["social", t.social.tab]].map(([key, label]) => (
                 <button key={key} onClick={() => setProfileTab(key)} style={{
                   flex: 1, padding: "10px 0", fontSize: 12, fontWeight: 800,
                   textTransform: "uppercase", letterSpacing: "0.05em",
@@ -689,10 +691,9 @@ function AppShell() {
             {/* Divider — vertical on desktop, hidden on mobile */}
             {!isMobile && <div style={{ background: `${pal.ink}18`, alignSelf: "stretch" }} />}
 
-            {/* RIGHT: User Guide */}
-            <div style={{ display: isMobile && profileTab !== "guide" ? "none" : undefined }}>
-              <h2 style={{ fontWeight: 900, fontSize: 24, textTransform: "uppercase", margin: "0 0 20px" }}>{t.guide.tabGuide}</h2>
-              <UserGuide pal={pal} t={t} />
+            {/* RIGHT: Social / Chat */}
+            <div style={{ display: isMobile && profileTab !== "social" ? "none" : undefined }}>
+              <ChatPanel pal={pal} t={t} myId={myId} />
             </div>
           </div>
         </div>
@@ -747,7 +748,29 @@ function AppShell() {
               </div>
             ) : <TopControls pal={pal} dark={dark} setDark={setDark} lang={lang} setLang={setLang} theme={theme} setTheme={setTheme} soundOn={soundOn} setSoundOn={setSoundOn} notifOn={notifOn} toggleNotif={toggleNotif} t={t} play={play} music={music} dropdownUp={false} onHome={() => navigateTo("home")} />}
           </div>
-          <AboutPage pal={pal} t={t} dark={dark} />
+          {/* About / Guide sub-tabs */}
+          <div style={{ display: "flex", marginBottom: 24, border: `2px solid ${pal.ink}`, overflow: "hidden" }}>
+            {[["about", t.menu.about], ["guide", t.guide.tabGuide]].map(([key, label]) => (
+              <button key={key} onClick={() => setAboutTab(key)} style={{
+                flex: 1, padding: "10px 0", fontSize: 12, fontWeight: 800,
+                textTransform: "uppercase", letterSpacing: "0.05em",
+                border: "none", cursor: "pointer",
+                background: aboutTab === key ? pal.ink : "transparent",
+                color: aboutTab === key ? pal.bg : pal.ink,
+                transition: "background 0.15s",
+              }}>
+                {label}
+              </button>
+            ))}
+          </div>
+          {aboutTab === "about" ? (
+            <AboutPage pal={pal} t={t} dark={dark} />
+          ) : (
+            <div>
+              <h2 style={{ fontWeight: 900, fontSize: 24, textTransform: "uppercase", margin: "0 0 20px" }}>{t.guide.tabGuide}</h2>
+              <UserGuide pal={pal} t={t} />
+            </div>
+          )}
         </div>
       )}
 
