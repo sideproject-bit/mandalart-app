@@ -19,7 +19,7 @@ function formatTime(iso) {
   return new Date(iso).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
 }
 
-export default function ChatPanel({ pal, t, myId }) {
+export default function ChatPanel({ pal, t, myId, addNotification }) {
   const [friends, setFriends] = useState([]);
   const [activeFriend, setActiveFriend] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -28,6 +28,11 @@ export default function ChatPanel({ pal, t, myId }) {
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef(null);
   const channelRef = useRef(null);
+  const activeFriendRef = useRef(null);
+  const friendsRef = useRef([]);
+
+  useEffect(() => { activeFriendRef.current = activeFriend; }, [activeFriend]);
+  useEffect(() => { friendsRef.current = friends; }, [friends]);
 
   useEffect(() => {
     if (!myId) return;
@@ -38,12 +43,17 @@ export default function ChatPanel({ pal, t, myId }) {
   useEffect(() => {
     if (!myId) return;
     channelRef.current = subscribeToMessages(myId, (msg) => {
+      const currentFriend = activeFriendRef.current;
+      const isOpenChat = currentFriend?.id === msg.sender_id;
+
       setMessages((prev) => {
         if (prev.find((m) => m.id === msg.id)) return prev;
+        // only append to message list if this chat is open
+        if (!isOpenChat) return prev;
         return [...prev, msg];
       });
-      // auto mark read if chat with that sender is open
-      if (activeFriend?.id === msg.sender_id) {
+
+      if (isOpenChat) {
         markAsRead(myId, msg.sender_id).catch(() => {});
         setMessages((prev) =>
           prev.map((m) =>
@@ -52,12 +62,21 @@ export default function ChatPanel({ pal, t, myId }) {
               : m
           )
         );
+      } else {
+        // fire in-app notification
+        const sender = friendsRef.current.find((f) => f.id === msg.sender_id);
+        const name = sender?.username ?? "Someone";
+        addNotification?.({
+          type: "chat",
+          title: name,
+          body: msg.content.length > 60 ? msg.content.slice(0, 60) + "…" : msg.content,
+        });
       }
     });
     return () => {
       channelRef.current?.unsubscribe();
     };
-  }, [myId, activeFriend?.id]);
+  }, [myId, addNotification]);
 
   const openChat = useCallback(async (friend) => {
     setActiveFriend(friend);

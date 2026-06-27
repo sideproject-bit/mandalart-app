@@ -693,7 +693,7 @@ function AppShell() {
 
             {/* RIGHT: Social / Chat */}
             <div style={{ display: isMobile && profileTab !== "social" ? "none" : undefined }}>
-              <ChatPanel pal={pal} t={t} myId={myId} />
+              <ChatPanel pal={pal} t={t} myId={myId} addNotification={addNotification} />
             </div>
           </div>
         </div>
