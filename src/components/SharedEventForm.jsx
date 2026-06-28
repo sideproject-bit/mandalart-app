@@ -9,7 +9,7 @@ function localToday() {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
-export default function SharedEventForm({ pal, dark, onSave, onClose, t }) {
+export default function SharedEventForm({ pal, dark, onSave, onClose, t, error }) {
   const [title, setTitle] = useState("");
   const [date, setDate] = useState(localToday());
   const [startTime, setStartTime] = useState("");
@@ -108,6 +108,9 @@ export default function SharedEventForm({ pal, dark, onSave, onClose, t }) {
           />
         )}
 
+        {error && (
+          <div style={{ fontSize: 11, color: "#C7382E", marginTop: 10, lineHeight: 1.5 }}>{error}</div>
+        )}
         <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 14 }}>
           <button onClick={onClose} style={{ background: "none", border: `1px solid ${ink}33`, color: ink, padding: "7px 14px", fontSize: 11, cursor: "pointer", borderRadius: 6 }}>
             {t?.social?.cancel ?? "Cancel"}

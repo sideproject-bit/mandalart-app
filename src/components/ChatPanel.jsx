@@ -210,6 +210,7 @@ export default function ChatPanel({ pal, t, myId, addNotification, onGroupEvents
   };
 
   const handleAddEvent = async (formData) => {
+    setEventError("");
     const payload = {
       creatorId: myId,
       title: formData.title,
@@ -221,9 +222,15 @@ export default function ChatPanel({ pal, t, myId, addNotification, onGroupEvents
     };
     if (chatView === "group" && activeGroup) payload.groupId = activeGroup.id;
     else if (chatView === "direct" && activeFriend) payload.receiverId = activeFriend.id;
-    await addGroupEvent(payload);
-    setShowEventForm(false);
-    onGroupEventsChange?.();
+    try {
+      await addGroupEvent(payload);
+      setShowEventForm(false);
+      onGroupEventsChange?.();
+    } catch (err) {
+      console.error("addGroupEvent error:", err);
+      setEventError(err?.message ?? "Failed to save event.");
+      throw err; // re-throw so SharedEventForm resets saving state
+    }
   };
 
   const handleLeaveGroup = async () => {
@@ -264,6 +271,7 @@ export default function ChatPanel({ pal, t, myId, addNotification, onGroupEvents
   };
 
   const [guideOpen, setGuideOpen] = useState(false);
+  const [eventError, setEventError] = useState("");
   const isGroupAdmin = activeGroup?.admin_id === myId;
   const ink = pal.ink;
   const bg = pal.bg;
@@ -541,7 +549,7 @@ export default function ChatPanel({ pal, t, myId, addNotification, onGroupEvents
         </div>
         {inputBar}
         {showEventForm && (
-          <SharedEventForm pal={pal} dark={false} t={t} onSave={handleAddEvent} onClose={() => setShowEventForm(false)} />
+          <SharedEventForm pal={pal} dark={false} t={t} onSave={handleAddEvent} onClose={() => { setShowEventForm(false); setEventError(""); }} error={eventError} />
         )}
       </div>
     );
@@ -682,7 +690,7 @@ export default function ChatPanel({ pal, t, myId, addNotification, onGroupEvents
         </div>
         {inputBar}
         {showEventForm && (
-          <SharedEventForm pal={pal} dark={false} t={t} onSave={handleAddEvent} onClose={() => setShowEventForm(false)} />
+          <SharedEventForm pal={pal} dark={false} t={t} onSave={handleAddEvent} onClose={() => { setShowEventForm(false); setEventError(""); }} error={eventError} />
         )}
       </div>
     );
