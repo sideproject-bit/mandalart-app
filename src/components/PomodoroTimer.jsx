@@ -644,11 +644,13 @@ function TimeStepper({ value, setValue, max, unit, dark, ink, accent }) {
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
       <button onClick={inc} aria-label="up" style={arrowBtn}><ChevronUp size={22} /></button>
       <input
-        type="number" min={0} max={max}
-        value={value}
+        type="text" inputMode="numeric" pattern="[0-9]*"
+        value={String(value).padStart(2, "0")}
         onChange={e => {
-          const n = parseInt(e.target.value, 10);
+          const raw = e.target.value.replace(/\D/g, "");
+          const n = parseInt(raw, 10);
           if (!isNaN(n)) setValue(Math.max(0, Math.min(max, n)));
+          else if (raw === "") setValue(0);
         }}
         onBlur={e => {
           const n = parseInt(e.target.value, 10);
@@ -660,7 +662,6 @@ function TimeStepper({ value, setValue, max, unit, dark, ink, accent }) {
           border: `1.5px solid ${dark ? "#444" : "#ccc"}`, borderRadius: 8,
           background: dark ? "#1e1d16" : "#fff", color: ink, lineHeight: 1,
           outline: "none", fontFamily: "inherit", boxSizing: "border-box",
-          appearance: "textfield", MozAppearance: "textfield",
         }}
       />
       <button onClick={dec} aria-label="down" style={arrowBtn}><ChevronDown size={22} /></button>
