@@ -285,6 +285,42 @@ export default function PlannerWeekly({ t, pal, dark, compact = false, onToggleC
     setCreatePopup(null);
   }
 
+  // Assign lane (column index) to each event so overlapping events sit side-by-side.
+  // Returns Map<id, { lane, totalLanes }>
+  function computeLanes(evts) {
+    const sorted = [...evts].sort((a, b) => a.startCell - b.startCell || a.endCell - b.endCell);
+    // active: array of events whose endCell >= current event's startCell
+    const lanes = new Map(); // id → lane index
+    const laneEnd = []; // laneEnd[i] = endCell of the last event assigned to lane i
+
+    for (const evt of sorted) {
+      // Find first lane where the last event has already ended
+      let assigned = -1;
+      for (let i = 0; i < laneEnd.length; i++) {
+        if (laneEnd[i] < evt.startCell) { assigned = i; break; }
+      }
+      if (assigned === -1) { assigned = laneEnd.length; laneEnd.push(0); }
+      laneEnd[assigned] = evt.endCell;
+      lanes.set(evt.id, assigned);
+    }
+
+    // Second pass: for each event, count how many events overlap it to determine totalLanes
+    const result = new Map();
+    for (const evt of sorted) {
+      const myLane = lanes.get(evt.id);
+      // Count max lane index among all events that overlap this event
+      let maxLane = myLane;
+      for (const other of sorted) {
+        if (other.id === evt.id) continue;
+        if (other.startCell <= evt.endCell && other.endCell >= evt.startCell) {
+          maxLane = Math.max(maxLane, lanes.get(other.id));
+        }
+      }
+      result.set(evt.id, { lane: myLane, totalLanes: maxLane + 1 });
+    }
+    return result;
+  }
+
   function getEventsForDay(day, dateKey) {
     const dow  = day.getDay();
     const cal  = (calEvents[dateKey] ?? [])
@@ -418,20 +454,28 @@ export default function PlannerWeekly({ t, pal, dark, compact = false, onToggleC
                     const personalRight = hasGroup ? "42%" : 1;
                     const groupLeft     = "60%";
 
+                    const validEvts = evts.filter(e => e.startCell != null);
+                    const laneMap   = computeLanes(validEvts);
+                    // personal area width: right edge depends on group events
+                    const personalW = hasGroup ? "58%" : "100%";
+
                     return (
                       <>
                         {/* Personal/calendar events */}
-                        {evts.filter(e => e.startCell != null).map(evt => {
+                        {validEvts.map(evt => {
                           const isDragging = draggingId === evt.id;
                           const topPx = evt.startCell * PX_PER_CELL + 1;
                           const botPx = Math.min(totalH, (evt.endCell + 1) * PX_PER_CELL) - 1;
                           const htPx  = Math.max(PX_PER_CELL - 2, botPx - topPx);
+                          const { lane, totalLanes } = laneMap.get(evt.id) ?? { lane: 0, totalLanes: 1 };
+                          const laneW = `calc((${personalW} - 2px) / ${totalLanes})`;
+                          const laneL = `calc(1px + ${lane} * (${personalW} - 2px) / ${totalLanes})`;
                           return (
                             <div key={evt.id} data-evt="1"
                               onPointerDown={editMode ? (e) => startMoveDrag(evt, dateKey, e) : undefined}
                               onClick={(e) => { if (!dragRef.current) { e.stopPropagation(); setViewEvt({ event: evt, dateKey }); } }}
                               style={{
-                                position: "absolute", top: topPx, left: 1, right: personalRight, height: htPx,
+                                position: "absolute", top: topPx, left: laneL, width: laneW, height: htPx,
                                 background: evt.color + (isDragging ? "44" : "cc"),
                                 borderLeft: `2px solid ${evt.color}`,
                                 borderRadius: 2, padding: "1px 3px 0",
