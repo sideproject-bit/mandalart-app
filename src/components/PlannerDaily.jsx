@@ -478,29 +478,6 @@ export default function PlannerDaily({ t, pal, dark, editMode, events, onEventsC
         ))}
       </div>
 
-      {/* Event outline overlays — one border rect per event, larger events on top */}
-      {(() => {
-        const overlayEvts = [...blockEvents, ...calendarEvents]
-          .sort((a, b) => (b.endCell - b.startCell) - (a.endCell - a.startCell));
-        return overlayEvts.map((evt, i) => {
-          const startRow = Math.floor(evt.startCell / COLS);
-          const endRow   = Math.floor(evt.endCell   / COLS);
-          return (
-            <div key={`ov-${evt.id}`} style={{
-              position: "absolute",
-              top: HEADER_H + startRow * CELL_H,
-              left: labelW,
-              right: 0,
-              height: (endRow - startRow + 1) * CELL_H,
-              border: `2px solid ${evt.color}`,
-              boxSizing: "border-box",
-              pointerEvents: "none",
-              zIndex: overlayEvts.length - i,
-            }} />
-          );
-        });
-      })()}
-
       {/* Hour rows — partial-fill cell rendering */}
       {Array.from({ length: ROWS }, (_, h) => (
         <div key={h} style={{ display: "grid", gridTemplateColumns: `${labelW}px repeat(${COLS}, 1fr)` }}>
