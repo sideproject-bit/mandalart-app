@@ -32,3 +32,22 @@ export function subscribeToGroupMessages(groupId, onMessage) {
     }, (payload) => onMessage(payload.new))
     .subscribe();
 }
+
+// Global subscription for all groups — used for unread tracking & notifications
+// when the user is NOT inside a specific group chat.
+export function subscribeToAllGroupMessages(myId, groupIds, onMessage) {
+  if (!groupIds.length) return null;
+  const groupIdSet = new Set(groupIds);
+  return supabase
+    .channel(`grp_all_${myId}`)
+    .on("postgres_changes", {
+      event: "INSERT",
+      schema: "public",
+      table: "group_messages",
+    }, (payload) => {
+      const msg = payload.new;
+      if (msg.sender_id === myId) return;
+      if (groupIdSet.has(msg.group_id)) onMessage(msg);
+    })
+    .subscribe();
+}
