@@ -124,3 +124,14 @@ export async function deleteGroupEvent(eventId) {
   const { error } = await supabase.from("group_events").delete().eq("id", eventId);
   if (error) throw error;
 }
+
+export async function updateGroupEvent(eventId, changes) {
+  const payload = {};
+  if (changes.title     !== undefined) payload.title      = changes.title;
+  if (changes.startTime !== undefined) payload.start_time = changes.startTime || null;
+  if (changes.endTime   !== undefined) payload.end_time   = changes.endTime   || null;
+  if (changes.color     !== undefined) payload.color      = changes.color;
+  if (changes.memo      !== undefined) payload.memo       = changes.memo      || null;
+  const { error } = await supabase.from("group_events").update(payload).eq("id", eventId);
+  if (error) throw error;
+}

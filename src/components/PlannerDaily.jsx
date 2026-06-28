@@ -67,7 +67,9 @@ function EventRow({ evt, isMobile, editMode, dark, ink, acc, border, pl, onMove,
         display: "flex", alignItems: "flex-start", gap: 8,
         padding: "8px 10px",
         background: dark ? "#1e1d16" : "#f0ede2",
-        borderLeft: `3px solid ${evt.color}`,
+        ...(evt.fromCalendar
+          ? { border: `2px solid ${evt.color}` }
+          : { borderLeft: `3px solid ${evt.color}` }),
         borderRadius: 4,
         transform: isMobile ? `translateX(${dx}px)` : "none",
         transition: startX.current == null ? "transform 0.2s ease" : "none",
@@ -194,7 +196,7 @@ function timeToEndCell(timeStr) {
   return Math.ceil((h * 60 + m) / 10) - 1;
 }
 
-export default function PlannerDaily({ t, pal, dark, editMode, events, onEventsChange, onEditEvent, onEditCalEvent, onDeleteCalEvent, todos, onTodosChange, onMoveToTomorrow, onSkipRecurring, spans, theme, lang, groupEvents = [], onDeleteGroupEvent }) {
+export default function PlannerDaily({ t, pal, dark, editMode, events, onEventsChange, onEditEvent, onEditCalEvent, onDeleteCalEvent, todos, onTodosChange, onMoveToTomorrow, onSkipRecurring, spans, theme, lang, groupEvents = [], onDeleteGroupEvent, onEditGroupEvent }) {
   const pl    = t.planner;
   const ink   = pal.ink;
   const acc   = pal.accent;
@@ -220,6 +222,7 @@ export default function PlannerDaily({ t, pal, dark, editMode, events, onEventsC
   const [editStart,   setEditStart]   = useState("");
   const [editEnd,     setEditEnd]     = useState("");
   const [ctxMenu,     setCtxMenu]     = useState(null); // desktop right-click menu { evt, x, y }
+  const [groupDone,   setGroupDone]   = useState({}); // local done state for group events { [id]: bool }
 
   const dragRef = useRef({ active: false, start: null, end: null, dragging: false });
   const gridRef = useRef(null);
@@ -363,7 +366,9 @@ export default function PlannerDaily({ t, pal, dark, editMode, events, onEventsC
       startCell: newStartCell,
       endCell:   newEndCell,
     };
-    if (viewEvent.fromCalendar) {
+    if (viewEvent._isGroupEvent) {
+      onEditGroupEvent?.(viewEvent.id, changes);
+    } else if (viewEvent.fromCalendar) {
       onEditCalEvent?.(viewEvent._dateKey, viewEvent.id, changes);
     } else {
       onEditEvent?.(viewEvent.id, changes);
@@ -373,7 +378,9 @@ export default function PlannerDaily({ t, pal, dark, editMode, events, onEventsC
   }
 
   function deleteEvent(evt) {
-    if (evt.fromCalendar) {
+    if (evt._isGroupEvent) {
+      onDeleteGroupEvent?.(evt.id);
+    } else if (evt.fromCalendar) {
       onDeleteCalEvent?.(evt._dateKey, evt.id);
     } else {
       onEventsChange(prev => prev.filter(e => e.id !== evt.id));
@@ -471,6 +478,29 @@ export default function PlannerDaily({ t, pal, dark, editMode, events, onEventsC
         ))}
       </div>
 
+      {/* Event outline overlays — one border rect per event, larger events on top */}
+      {(() => {
+        const overlayEvts = [...blockEvents, ...calendarEvents]
+          .sort((a, b) => (b.endCell - b.startCell) - (a.endCell - a.startCell));
+        return overlayEvts.map((evt, i) => {
+          const startRow = Math.floor(evt.startCell / COLS);
+          const endRow   = Math.floor(evt.endCell   / COLS);
+          return (
+            <div key={`ov-${evt.id}`} style={{
+              position: "absolute",
+              top: HEADER_H + startRow * CELL_H,
+              left: labelW,
+              right: 0,
+              height: (endRow - startRow + 1) * CELL_H,
+              border: `2px solid ${evt.color}`,
+              boxSizing: "border-box",
+              pointerEvents: "none",
+              zIndex: overlayEvts.length - i,
+            }} />
+          );
+        });
+      })()}
+
       {/* Hour rows — partial-fill cell rendering */}
       {Array.from({ length: ROWS }, (_, h) => (
         <div key={h} style={{ display: "grid", gridTemplateColumns: `${labelW}px repeat(${COLS}, 1fr)` }}>
@@ -565,14 +595,33 @@ export default function PlannerDaily({ t, pal, dark, editMode, events, onEventsC
         <div key={ge.id} style={{
           display: "flex", alignItems: "flex-start", gap: 8, padding: "8px 10px", marginBottom: 6,
           background: dark ? "#1e1d16" : "#f0ede2",
-          borderLeft: `3px solid ${ge.color ?? "#4A90D9"}`,
-          borderRadius: 4, opacity: 0.9,
-        }}>
+          border: `2px solid ${ge.color ?? "#4A90D9"}`,
+          borderRadius: 4, opacity: groupDone[ge.id] ? 0.6 : 0.9,
+          cursor: ge._isAdmin ? "pointer" : "default",
+        }}
+          onClick={ge._isAdmin ? () => {
+            const sc = timeToCell(ge.start_time) ?? 0;
+            const ec = ge.end_time ? timeToEndCell(ge.end_time) : sc;
+            setViewEvent({
+              ...ge,
+              _isGroupEvent: true,
+              fromCalendar: false,
+              startTime: ge.start_time ?? "",
+              endTime: ge.end_time ?? "",
+              startCell: sc,
+              endCell: ec,
+              done: groupDone[ge.id] ?? false,
+            });
+          } : undefined}
+        >
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontWeight: 700, fontSize: 13, wordBreak: "keep-all" }}>
+            <div style={{
+              fontWeight: 700, fontSize: 13, wordBreak: "keep-all",
+              textDecoration: groupDone[ge.id] ? "line-through" : "none",
+            }}>
               <span style={{ opacity: 0.55, marginRight: 4 }}>{ge._groupLabel}</span>{ge.title}
             </div>
-            {(ge.start_time) && (
+            {ge.start_time && (
               <div style={{ fontSize: 11, opacity: 0.45, marginTop: 2 }}>
                 {ge.start_time}{ge.end_time ? ` – ${ge.end_time}` : ""}
                 {ge._carryOver && <span style={{ marginLeft: 6, opacity: 0.6 }}>↩</span>}
@@ -580,12 +629,13 @@ export default function PlannerDaily({ t, pal, dark, editMode, events, onEventsC
             )}
             {ge.memo && <div style={{ fontSize: 11, opacity: 0.55, marginTop: 4 }}>{ge.memo}</div>}
           </div>
-          {ge._isAdmin && (
-            <button
-              onClick={() => onDeleteGroupEvent?.(ge.id)}
-              style={{ background: "none", border: "none", cursor: "pointer", color: ink, opacity: 0.3, fontSize: 16, padding: 0, lineHeight: 1, flexShrink: 0 }}
-            >×</button>
-          )}
+          <input
+            type="checkbox"
+            checked={!!groupDone[ge.id]}
+            onChange={(e) => { e.stopPropagation(); setGroupDone(prev => ({ ...prev, [ge.id]: !prev[ge.id] })); }}
+            onClick={(e) => e.stopPropagation()}
+            style={{ accentColor: ge.color ?? acc, cursor: "pointer", flexShrink: 0, marginTop: 2, width: 15, height: 15 }}
+          />
         </div>
       ))}
     </>
@@ -856,14 +906,16 @@ export default function PlannerDaily({ t, pal, dark, editMode, events, onEventsC
                     </button>
                   </div>
                 )}
-                {editMode && !viewEvent._recurring && (
+                {(editMode || viewEvent._isGroupEvent) && !viewEvent._recurring && (
                   <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 16 }}>
                     <button onClick={() => { deleteEvent(viewEvent); setViewEvent(null); }} style={{ background: "none", border: `1px solid ${MON.red}`, color: MON.red, borderRadius: 6, padding: "6px 13px", fontSize: 12, cursor: "pointer", fontWeight: 700, fontFamily: "inherit" }}>
                       {pl.delete || "Delete"}
                     </button>
-                    <button onClick={() => moveToTomorrow(viewEvent)} style={{ background: MON.blue, color: "#fff", border: "none", borderRadius: 6, padding: "6px 13px", fontSize: 12, cursor: "pointer", fontWeight: 700, fontFamily: "inherit" }}>
-                      → {pl.moveTomorrow || "Tomorrow"}
-                    </button>
+                    {!viewEvent._isGroupEvent && (
+                      <button onClick={() => moveToTomorrow(viewEvent)} style={{ background: MON.blue, color: "#fff", border: "none", borderRadius: 6, padding: "6px 13px", fontSize: 12, cursor: "pointer", fontWeight: 700, fontFamily: "inherit" }}>
+                        → {pl.moveTomorrow || "Tomorrow"}
+                      </button>
+                    )}
                     <button onClick={() => openEditView(viewEvent)} style={{ background: acc, color: "#fff", border: "none", borderRadius: 6, padding: "6px 13px", fontSize: 12, cursor: "pointer", fontWeight: 700, fontFamily: "inherit" }}>
                       {pl.edit || "Edit"}
                     </button>

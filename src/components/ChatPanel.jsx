@@ -41,7 +41,7 @@ function groupByDate(messages, t) {
   return result;
 }
 
-export default function ChatPanel({ pal, t, myId, myUsername, addNotification, onGroupEventsChange,
+export default function ChatPanel({ pal, dark = false, t, myId, myUsername, addNotification, onGroupEventsChange,
   unreadDirect = new Set(), unreadGroups = new Set(),
   onClearUnreadDirect, onClearUnreadGroup, onActiveChatChange }) {
   const [chatView, setChatView] = useState("list"); // "list"|"direct"|"group"|"newGroup"
@@ -696,7 +696,7 @@ export default function ChatPanel({ pal, t, myId, myUsername, addNotification, o
         </div>
         {inputBar}
         {showEventForm && (
-          <SharedEventForm pal={pal} dark={false} t={t} onSave={handleAddEvent} onClose={() => { setShowEventForm(false); setEventError(""); }} error={eventError} />
+          <SharedEventForm pal={pal} dark={dark} t={t} onSave={handleAddEvent} onClose={() => { setShowEventForm(false); setEventError(""); }} error={eventError} />
         )}
       </div>
     );
@@ -836,7 +836,7 @@ export default function ChatPanel({ pal, t, myId, myUsername, addNotification, o
         </div>
         {inputBar}
         {showEventForm && (
-          <SharedEventForm pal={pal} dark={false} t={t} onSave={handleAddEvent} onClose={() => { setShowEventForm(false); setEventError(""); }} error={eventError} />
+          <SharedEventForm pal={pal} dark={dark} t={t} onSave={handleAddEvent} onClose={() => { setShowEventForm(false); setEventError(""); }} error={eventError} />
         )}
       </div>
     );

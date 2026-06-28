@@ -3,7 +3,7 @@ import { Cloud, CloudUpload, CloudDownload, Check, AlertCircle } from "lucide-re
 import PlannerDaily from "./PlannerDaily";
 import PlannerMonthly from "./PlannerMonthly";
 import PlannerWeekly from "./PlannerWeekly";
-import { fetchGroupEventsForUser, deleteGroupEvent } from "../api/groupEventsApi";
+import { fetchGroupEventsForUser, deleteGroupEvent, updateGroupEvent } from "../api/groupEventsApi";
 import { pushPlannerSync, pullPlannerSync } from "../api/plannerSyncApi";
 
 // Local-timezone date key (toISOString would use UTC and roll over early)
@@ -77,6 +77,13 @@ export default function Planner({ t, pal, dark, userId, theme, lang, groupEvents
     try {
       await deleteGroupEvent(id);
       setGroupEvents(prev => prev.filter(e => e.id !== id));
+    } catch {}
+  };
+
+  const handleEditGroupEvent = async (id, changes) => {
+    try {
+      await updateGroupEvent(id, changes);
+      setGroupEvents(prev => prev.map(e => e.id === id ? { ...e, ...changes, start_time: changes.startTime ?? e.start_time, end_time: changes.endTime ?? e.end_time } : e));
     } catch {}
   };
 
@@ -468,6 +475,7 @@ export default function Planner({ t, pal, dark, userId, theme, lang, groupEvents
           theme={theme}
           lang={lang}
           onDeleteGroupEvent={handleDeleteGroupEvent}
+          onEditGroupEvent={handleEditGroupEvent}
           groupEvents={(() => {
             const yesterday = localKey(new Date(new Date().setDate(new Date().getDate() - 1)));
             return groupEvents.filter(e =>
