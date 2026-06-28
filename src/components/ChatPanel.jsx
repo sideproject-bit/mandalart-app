@@ -114,7 +114,7 @@ export default function ChatPanel({ pal, t, myId, myUsername, addNotification, o
         ));
         // notification + unread tracking handled by useChatNotifications in App
       }
-    });
+    }, "_panel");
     return () => { directChannelRef.current?.unsubscribe(); };
   }, [myId, addNotification, chatView]);
 

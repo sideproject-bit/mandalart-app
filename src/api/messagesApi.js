@@ -41,9 +41,9 @@ export async function markAsRead(myId, friendId) {
   if (error) throw error;
 }
 
-export function subscribeToMessages(myId, onMessage) {
+export function subscribeToMessages(myId, onMessage, channelSuffix = "") {
   return supabase
-    .channel(`messages_${myId}`)
+    .channel(`messages_${myId}${channelSuffix}`)
     .on(
       "postgres_changes",
       {

@@ -49,7 +49,8 @@ export function useChatNotifications(myId, addNotification, notifOn) {
     return name;
   };
 
-  // Always-on direct message subscription
+  // Always-on direct message subscription — use "_notif" suffix to avoid channel name
+  // conflict with ChatPanel's per-panel subscription ("_panel" suffix)
   useEffect(() => {
     if (!myId) return;
     const ch = subscribeToMessages(myId, async (msg) => {
@@ -64,7 +65,7 @@ export function useChatNotifications(myId, addNotification, notifOn) {
           body: msg.content.length > 60 ? msg.content.slice(0, 60) + "…" : msg.content,
         });
       }
-    });
+    }, "_notif");
     return () => ch?.unsubscribe();
   }, [myId]);
 
