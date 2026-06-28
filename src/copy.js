@@ -290,13 +290,13 @@ export const T = {
       steps: [
         { t: "Set time blocks", b: "Drag across the grid to select multiple cells, or double-click for a single cell. The event popup appears as soon as you release." },
         { t: "Add an event", b: "Enter a title, pick a color, and add optional notes. Hit Add and the blocks are colored and your event appears in the list." },
-        { t: "Manage to-dos", b: "To-dos are global — they persist across dates. Check to complete, × to delete. Add as many as you need." },
+        { t: "Manage to-dos", b: "To-dos persist across dates. Check the box to mark as done — completed to-dos are automatically removed at midnight. On desktop, use × to delete manually. On mobile, swipe left to delete." },
         { t: "Weekly view", b: "Switch to the Weekly tab to see all 7 days side by side on a time grid. Events from daily and monthly views appear here automatically — scroll horizontally on mobile." },
         { t: "Monthly view & recurring", b: "In the Monthly tab, add events to future dates or set recurring events by day of week. They'll appear automatically in the daily view on the right day." },
       ],
       mobileSteps: [
         { t: "Scrolling the grid", b: "Dragging on the grid selects time blocks, so use the SCROLL rail on the right edge to scroll the day up and down." },
-        { t: "Procrastinate & delete", b: "In the Events list, swipe an event left to delete it, or swipe right to procrastinate — moving it to the same time tomorrow." },
+        { t: "Events & progress", b: "Tap an event in the list to open its details — you can edit, delete, or move it to tomorrow from there. Check the box on the right to mark it done. A progress bar at the top of the Events column shows how many you've completed today. Swipe right to procrastinate." },
       ],
       dontShow: "Don't show this when entering Planner",
       showAgain: "Show guide",
@@ -346,10 +346,10 @@ export const T = {
           category: "Planner",
           items: [
             { t: "Time Blocks", b: "Drag across the grid to mark time slots — each cell is 30 minutes. Double-click a single cell to add a quick event. Release to open the event form." },
-            { t: "Events & To-dos", b: "Events are tied to specific dates. To-dos are global and persist across dates. Check to complete, × to delete." },
+            { t: "Events & To-dos", b: "Tap an event to view, edit, or delete it. Check the box on an event to mark it done — a progress bar shows today's completion rate. To-dos persist across dates; completed ones are auto-removed at midnight. On mobile, swipe a to-do left to delete it." },
             { t: "Weekly View", b: "The Weekly tab shows all 7 days side-by-side on a time grid. Events from daily and monthly views appear here automatically. Scroll horizontally on mobile. Tap an event to see its details." },
             { t: "Monthly View & Recurring", b: "In the Monthly tab, add events to future dates or set events that repeat by day of week. They appear automatically in the daily view on the right day. You can also edit or delete daily events from here." },
-            { t: "Midnight Reset", b: "Time blocks reset at midnight each day. Daily events are automatically moved to Monthly view and kept for up to 60 days. To-dos and monthly events are not affected." },
+            { t: "Midnight Reset", b: "Time blocks reset at midnight each day. Daily events are automatically moved to Monthly view and kept for up to 60 days. Completed to-dos are removed at midnight; incomplete ones remain. Monthly events are not affected." },
           ],
         },
         {
@@ -737,13 +737,13 @@ export const T = {
       steps: [
         { t: "타임 블록 설정", b: "격자 위를 드래그하면 여러 칸을, 더블클릭하면 한 칸을 선택할 수 있어요. 선택이 끝나면 일정 추가 팝업이 바로 떠요." },
         { t: "일정 등록", b: "제목과 색상, 메모를 입력하고 추가 버튼을 누르면 일정이 생성돼요. 타임 블록에 색상이 칠해지고 일정 목록에도 표시돼요." },
-        { t: "할 일 관리", b: "할 일은 날짜와 무관하게 전역으로 유지돼요. 체크로 완료 표시하고, × 버튼으로 삭제할 수 있어요." },
+        { t: "할 일 관리", b: "할 일은 날짜와 무관하게 유지돼요. 체크박스로 완료 표시하면 자정에 자동으로 삭제돼요. 데스크탑에서는 × 버튼으로, 모바일에서는 왼쪽으로 밀어서 삭제할 수 있어요." },
         { t: "주간 뷰", b: "주간 탭으로 이동하면 7일 일정을 타임 그리드 위에서 한눈에 볼 수 있어요. 일일·월간에서 등록한 일정이 자동으로 표시돼요. 모바일에서는 가로로 스크롤하면 돼요." },
         { t: "월간 뷰 & 반복 일정", b: "월간 탭에서 미래 날짜의 일정을 미리 등록하거나 요일 기반 반복 일정을 설정할 수 있어요. 해당 날짜가 되면 일일 뷰에 자동으로 표시돼요." },
       ],
       mobileSteps: [
         { t: "격자 스크롤하기", b: "격자를 드래그하면 타임 블록이 선택돼요. 그래서 화면을 위아래로 스크롤하려면 오른쪽 가장자리의 SCROLL 레일을 사용하세요." },
-        { t: "내일로 미루기 & 삭제", b: "일정 목록에서 일정을 왼쪽으로 밀면 삭제, 오른쪽으로 밀면 '내일로 미루기'(내일 같은 시간으로 이동)예요." },
+        { t: "일정 & 달성도", b: "일정 목록에서 일정을 탭하면 상세·수정·삭제 팝업이 떠요. 오른쪽 체크박스로 달성 여부를 표시하면 상단 게이지에 반영돼요. 오른쪽으로 밀면 내일로 미루기예요." },
       ],
       dontShow: "플래너 진입 시 자동으로 표시 안 함",
       showAgain: "가이드 보기",
@@ -793,10 +793,10 @@ export const T = {
           category: "플래너",
           items: [
             { t: "타임 블럭", b: "그리드를 드래그해 시간대를 선택하세요 — 한 칸이 30분이에요. 한 칸만 더블클릭해도 일정 추가가 가능해요." },
-            { t: "일정 & 할 일", b: "일정은 특정 날짜에 연결돼요. 할 일은 날짜에 관계없이 전역으로 유지돼요. 체크하면 완료, ×로 삭제할 수 있어요." },
+            { t: "일정 & 할 일", b: "일정을 탭하면 상세·수정·삭제 팝업이 떠요. 체크박스로 달성 여부를 표시하면 상단 게이지에 반영돼요. 할 일은 날짜와 무관하게 유지되며, 완료된 것은 자정에 자동 삭제돼요. 모바일에서는 왼쪽으로 밀어서 삭제할 수 있어요." },
             { t: "주간 보기", b: "주간 탭은 7일을 타임 그리드 위에 나란히 보여줘요. 일일·월간에서 등록한 일정이 자동으로 표시돼요. 모바일에서는 가로로 스크롤하면 돼요. 일정을 탭하면 상세 정보를 볼 수 있어요." },
             { t: "월간 보기 & 반복 일정", b: "월간 탭에서 미래 날짜에 일정을 추가하거나 요일별 반복 일정을 설정할 수 있어요. 일일에서 등록한 일정도 여기서 편집하거나 삭제할 수 있어요." },
-            { t: "자정 초기화", b: "타임 블럭은 매일 자정에 초기화돼요. 일일 일정은 자동으로 월간 뷰로 이동되어 최대 60일간 보관돼요. 할 일과 월간 캘린더 일정은 영향 없어요." },
+            { t: "자정 초기화", b: "타임 블럭은 매일 자정에 초기화돼요. 일일 일정은 자동으로 월간 뷰로 이동되어 최대 60일간 보관돼요. 완료된 할 일은 자정에 삭제되고, 미완료 항목은 유지돼요. 월간 일정은 영향 없어요." },
           ],
         },
         {

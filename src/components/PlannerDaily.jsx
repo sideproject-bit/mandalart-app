@@ -31,48 +31,60 @@ function getCurrentCell() {
 
 const MON = { red: "#C7382E", blue: "#2B3DCB", yellow: "#E3B22E" };
 
-// Single event row. Mobile: swipe left = delete, swipe right = move to tomorrow.
-// Desktop: × button + right-click to move to tomorrow.
-function EventRow({ evt, isMobile, editMode, dark, ink, pl, onDelete, onMove, onContext }) {
+// Single event row. Mobile: swipe right = procrastinate, tap = open popup.
+// Desktop: click = open popup, right-click = context menu.
+function EventRow({ evt, isMobile, editMode, dark, ink, acc, border, pl, onMove, onCheck, onTap, onContext }) {
   const [dx, setDx] = useState(0);
   const startX = useRef(null);
-  const canAct = editMode && !evt.fromCalendar;
+  const canProc = editMode && !evt.fromCalendar;
   const THRESH = 80;
 
-  const onTouchStart = (e) => { if (!canAct) return; startX.current = e.touches[0].clientX; };
+  const onTouchStart = (e) => { startX.current = e.touches[0].clientX; };
   const onTouchMove  = (e) => {
     if (startX.current == null) return;
     setDx(e.touches[0].clientX - startX.current);
   };
   const onTouchEnd = () => {
     if (startX.current == null) return;
-    if (dx < -THRESH)      onDelete(evt.id);
-    else if (dx > THRESH)  onMove(evt);
+    if (dx > THRESH && canProc) onMove(evt);
+    else if (Math.abs(dx) < 10) onTap?.(evt); // tap → open popup
     startX.current = null;
     setDx(0);
   };
 
   const card = (
-    <div style={{
-      display: "flex", alignItems: "flex-start", gap: 8,
-      padding: "8px 10px",
-      background: dark ? "#1e1d16" : "#f0ede2",
-      borderLeft: `3px solid ${evt.color}`,
-      borderRadius: 4,
-      transform: isMobile ? `translateX(${dx}px)` : "none",
-      transition: startX.current == null ? "transform 0.2s ease" : "none",
-      position: "relative",
-    }}>
+    <div
+      onClick={!isMobile ? () => onTap?.(evt) : undefined}
+      style={{
+        display: "flex", alignItems: "flex-start", gap: 8,
+        padding: "8px 10px",
+        background: dark ? "#1e1d16" : "#f0ede2",
+        borderLeft: `3px solid ${evt.color}`,
+        borderRadius: 4,
+        transform: isMobile ? `translateX(${dx}px)` : "none",
+        transition: startX.current == null ? "transform 0.2s ease" : "none",
+        cursor: "pointer",
+        opacity: evt.done && !evt.fromCalendar ? 0.6 : 1,
+      }}>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontWeight: 700, fontSize: 13, wordBreak: "keep-all" }}>{evt.title}</div>
+        <div style={{
+          fontWeight: 700, fontSize: 13, wordBreak: "keep-all",
+          textDecoration: evt.done && !evt.fromCalendar ? "line-through" : "none",
+        }}>{evt.title}</div>
         <div style={{ fontSize: 11, opacity: 0.45, marginTop: 2 }}>
           {cellToTime(evt.startCell)} – {cellToTimeEnd(evt.endCell)}
         </div>
         {evt.memo && <div style={{ fontSize: 11, opacity: 0.6, marginTop: 4, wordBreak: "keep-all" }}>{evt.memo}</div>}
         {evt.fromCalendar && <div style={{ fontSize: 10, opacity: 0.35, marginTop: 4 }}>📅 {pl.fromCalendar}</div>}
       </div>
-      {!evt.fromCalendar && editMode && !isMobile && (
-        <button onClick={() => onDelete(evt.id)} style={{ background: "none", border: "none", cursor: "pointer", color: ink, opacity: 0.3, fontSize: 16, padding: 0, lineHeight: 1, flexShrink: 0 }}>×</button>
+      {!evt.fromCalendar && (
+        <input
+          type="checkbox"
+          checked={!!evt.done}
+          onChange={(e) => { e.stopPropagation(); onCheck?.(evt.id); }}
+          onClick={(e) => e.stopPropagation()}
+          style={{ accentColor: acc, cursor: "pointer", flexShrink: 0, marginTop: 2, width: 15, height: 15 }}
+        />
       )}
     </div>
   );
@@ -80,7 +92,7 @@ function EventRow({ evt, isMobile, editMode, dark, ink, pl, onDelete, onMove, on
   if (!isMobile) {
     return (
       <div
-        onContextMenu={canAct ? (e) => { e.preventDefault(); onContext(evt, e.clientX, e.clientY); } : undefined}
+        onContextMenu={canProc ? (e) => { e.preventDefault(); onContext(evt, e.clientX, e.clientY); } : undefined}
         style={{ marginBottom: 6 }}
       >
         {card}
@@ -88,17 +100,75 @@ function EventRow({ evt, isMobile, editMode, dark, ink, pl, onDelete, onMove, on
     );
   }
 
-  // Mobile: swipe container with delete (right) / move (left) hints behind the card
   return (
     <div style={{ position: "relative", marginBottom: 6, overflow: "hidden", borderRadius: 4 }}>
-      {canAct && (
-        <div style={{ position: "absolute", inset: 0, display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 14px", fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.04em" }}>
+      {canProc && (
+        <div style={{ position: "absolute", inset: 0, display: "flex", justifyContent: "flex-start", alignItems: "center", paddingLeft: 14, fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.04em" }}>
           <span style={{ color: MON.blue, opacity: dx > 20 ? 1 : 0.3 }}>→ {pl.moveTomorrow || "Tomorrow"}</span>
-          <span style={{ color: MON.red, opacity: dx < -20 ? 1 : 0.3 }}>{pl.delete || "Delete"} ✕</span>
         </div>
       )}
       <div onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
         {card}
+      </div>
+    </div>
+  );
+}
+
+// To-do item. Mobile: swipe left = delete. Desktop: × button.
+function TodoItem({ td, isMobile, editMode, dark, ink, acc, border, pl, onToggle, onDelete }) {
+  const [dx, setDx] = useState(0);
+  const startX = useRef(null);
+  const THRESH = 80;
+
+  const onTouchStart = (e) => { startX.current = e.touches[0].clientX; };
+  const onTouchMove  = (e) => {
+    if (startX.current == null) return;
+    setDx(e.touches[0].clientX - startX.current);
+  };
+  const onTouchEnd = () => {
+    if (startX.current == null) return;
+    if (dx < -THRESH) onDelete(td.id);
+    startX.current = null;
+    setDx(0);
+  };
+
+  const item = (
+    <div style={{
+      display: "flex", alignItems: "center", gap: 8, padding: "6px 0",
+      borderBottom: `1px solid ${border}`,
+      background: dark ? "#1e1d16" : "#f0ede2",
+      transform: isMobile ? `translateX(${dx}px)` : "none",
+      transition: startX.current == null ? "transform 0.2s ease" : "none",
+    }}>
+      <input
+        type="checkbox"
+        checked={td.done}
+        onChange={() => onToggle(td.id)}
+        style={{ accentColor: acc, cursor: "pointer", flexShrink: 0 }}
+      />
+      <span style={{ flex: 1, fontSize: 13, textDecoration: td.done ? "line-through" : "none", opacity: td.done ? 0.35 : 1, wordBreak: "keep-all" }}>
+        {td.text}
+      </span>
+      {editMode && !isMobile && (
+        <button onClick={() => onDelete(td.id)} style={{ background: "none", border: "none", cursor: "pointer", color: ink, opacity: 0.25, fontSize: 16, padding: 0, lineHeight: 1, flexShrink: 0 }}>×</button>
+      )}
+    </div>
+  );
+
+  if (!isMobile) return <div style={{ marginBottom: 0 }}>{item}</div>;
+
+  return (
+    <div style={{ position: "relative", overflow: "hidden" }}>
+      <div style={{
+        position: "absolute", inset: 0, display: "flex", alignItems: "center",
+        justifyContent: "flex-end", paddingRight: 14,
+        fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.04em",
+        color: MON.red, opacity: dx < -20 ? 1 : 0.3,
+      }}>
+        {pl.delete || "Delete"} ✕
+      </div>
+      <div onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
+        {item}
       </div>
     </div>
   );
@@ -378,15 +448,33 @@ export default function PlannerDaily({ t, pal, dark, editMode, events, onEventsC
     </div>
   );
 
+  const ownEvents = events.filter(e => !e.fromCalendar);
+  const doneEventsCount = ownEvents.filter(e => e.done).length;
+  const totalEventsCount = ownEvents.length;
+  const eventsPct = totalEventsCount === 0 ? 0 : Math.round((doneEventsCount / totalEventsCount) * 100);
+
   const eventsBody = (
     <>
+      {totalEventsCount > 0 && (
+        <div style={{ marginBottom: 10 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, opacity: 0.55, marginBottom: 3, color: ink }}>
+            <span>{doneEventsCount}/{totalEventsCount}</span>
+            <span style={{ fontWeight: 700 }}>{eventsPct}%</span>
+          </div>
+          <div style={{ height: 4, background: ink + "18", borderRadius: 2, overflow: "hidden" }}>
+            <div style={{ height: "100%", width: `${eventsPct}%`, background: isMon ? MON.red : acc, borderRadius: 2, transition: "width 0.4s" }} />
+          </div>
+        </div>
+      )}
       {events.length === 0 && groupEvents.length === 0
         ? <div style={{ fontSize: 12, opacity: 0.3, paddingTop: 4 }}>{pl.noEvents}</div>
         : [...events].sort((a, b) => a.startCell - b.startCell).map(evt => (
           <EventRow
             key={evt.id} evt={evt}
-            isMobile={isMobile} editMode={editMode} dark={dark} ink={ink} pl={pl}
-            onDelete={deleteEvent} onMove={moveToTomorrow}
+            isMobile={isMobile} editMode={editMode} dark={dark} ink={ink} acc={acc} border={border} pl={pl}
+            onMove={moveToTomorrow}
+            onCheck={(id) => onEditEvent?.(id, { done: !evt.done })}
+            onTap={(ev) => setViewEvent(ev)}
             onContext={(ev, x, y) => setCtxMenu({ evt: ev, x, y })}
           />
         ))
@@ -421,6 +509,10 @@ export default function PlannerDaily({ t, pal, dark, editMode, events, onEventsC
     </>
   );
 
+  const doneTodosCount = todos.filter(td => td.done).length;
+  const totalTodosCount = todos.length;
+  const todosPct = totalTodosCount === 0 ? 0 : Math.round((doneTodosCount / totalTodosCount) * 100);
+
   const todoBody = (
     <>
       {editMode && (
@@ -434,24 +526,25 @@ export default function PlannerDaily({ t, pal, dark, editMode, events, onEventsC
           <button type="submit" style={{ background: isMon ? MON.yellow : acc, color: isMon ? "#1a1a1a" : "#fff", border: "none", borderRadius: 6, padding: "7px 11px", cursor: "pointer", fontSize: 14, fontWeight: 700 }}>+</button>
         </form>
       )}
+      {totalTodosCount > 0 && (
+        <div style={{ marginBottom: 10 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, opacity: 0.55, marginBottom: 3, color: ink }}>
+            <span>{doneTodosCount}/{totalTodosCount}</span>
+            <span style={{ fontWeight: 700 }}>{todosPct}%</span>
+          </div>
+          <div style={{ height: 4, background: ink + "18", borderRadius: 2, overflow: "hidden" }}>
+            <div style={{ height: "100%", width: `${todosPct}%`, background: isMon ? MON.yellow : acc, borderRadius: 2, transition: "width 0.4s" }} />
+          </div>
+        </div>
+      )}
       {todos.length === 0
         ? <div style={{ fontSize: 12, opacity: 0.3 }}>{pl.noTodos}</div>
         : todos.map(td => (
-          <div key={td.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0", borderBottom: `1px solid ${border}` }}>
-            <input
-              type="checkbox"
-              checked={td.done}
-              onChange={() => toggleTodo(td.id)}
-              disabled={!editMode}
-              style={{ accentColor: acc, cursor: "pointer", flexShrink: 0 }}
-            />
-            <span style={{ flex: 1, fontSize: 13, textDecoration: td.done ? "line-through" : "none", opacity: td.done ? 0.35 : 1, wordBreak: "keep-all" }}>
-              {td.text}
-            </span>
-            {editMode && (
-              <button onClick={() => deleteTodo(td.id)} style={{ background: "none", border: "none", cursor: "pointer", color: ink, opacity: 0.25, fontSize: 16, padding: 0, lineHeight: 1, flexShrink: 0 }}>×</button>
-            )}
-          </div>
+          <TodoItem
+            key={td.id} td={td}
+            isMobile={isMobile} editMode={editMode} dark={dark} ink={ink} acc={acc} border={border} pl={pl}
+            onToggle={toggleTodo} onDelete={deleteTodo}
+          />
         ))
       }
     </>
@@ -663,7 +756,7 @@ export default function PlannerDaily({ t, pal, dark, editMode, events, onEventsC
               <>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
                   <span style={{ width: 12, height: 12, borderRadius: 3, background: viewEvent.color, flexShrink: 0 }} />
-                  <div style={{ fontWeight: 800, fontSize: 15, wordBreak: "keep-all" }}>{viewEvent.title}</div>
+                  <div style={{ fontWeight: 800, fontSize: 15, wordBreak: "keep-all", textDecoration: viewEvent.done ? "line-through" : "none", opacity: viewEvent.done ? 0.6 : 1 }}>{viewEvent.title}</div>
                 </div>
                 <div style={{ fontSize: 12, opacity: 0.5, marginBottom: viewEvent.memo ? 10 : 0 }}>
                   {cellToTime(viewEvent.startCell)} – {cellToTimeEnd(viewEvent.endCell)}

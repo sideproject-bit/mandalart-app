@@ -28,11 +28,12 @@ export default function Planner({ t, pal, dark, userId, theme, lang, groupEvents
   const [tab, setTab] = useState("daily");
   const [editMode, setEditMode] = useState(true);
 
-  const DAILY_KEY = `grida_daily_${userId}_${todayKey()}`;
-  const TODO_KEY  = `grida_todos_${userId}`;
-  const CAL_KEY   = `grida_calendar_${userId}`;
-  const RECUR_KEY = `grida_recurring_${userId}`;
-  const SPANS_KEY = `grida_spans_${userId}`;
+  const DAILY_KEY       = `grida_daily_${userId}_${todayKey()}`;
+  const TODO_KEY        = `grida_todos_${userId}`;
+  const TODO_RESET_KEY  = `grida_todos_reset_${userId}`;
+  const CAL_KEY         = `grida_calendar_${userId}`;
+  const RECUR_KEY       = `grida_recurring_${userId}`;
+  const SPANS_KEY       = `grida_spans_${userId}`;
 
   const load = (key, fallback) => {
     try { return JSON.parse(localStorage.getItem(key) ?? "null") ?? fallback; } catch { return fallback; }
@@ -53,6 +54,16 @@ export default function Planner({ t, pal, dark, userId, theme, lang, groupEvents
   useEffect(() => { localStorage.setItem(CAL_KEY,   JSON.stringify(calEvents)); }, [calEvents]);
   useEffect(() => { localStorage.setItem(RECUR_KEY, JSON.stringify(recurring)); }, [recurring]);
   useEffect(() => { localStorage.setItem(SPANS_KEY, JSON.stringify(spans));    }, [spans]);
+
+  // Remove completed todos at midnight (once per day)
+  useEffect(() => {
+    if (!userId) return;
+    const today = todayKey();
+    if (localStorage.getItem(TODO_RESET_KEY) !== today) {
+      setTodos(prev => prev.filter(td => !td.done));
+      localStorage.setItem(TODO_RESET_KEY, today);
+    }
+  }, [userId]);
 
   // Fetch group events from Supabase
   useEffect(() => {
