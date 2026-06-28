@@ -57,6 +57,12 @@ function timeToCell(timeStr) {
   return h * COLS_DAY + Math.floor(m / 10);
 }
 
+function timeToEndCell(timeStr) {
+  if (!timeStr) return null;
+  const [h, m] = timeStr.split(":").map(Number);
+  return Math.ceil((h * 60 + m) / 10) - 1;
+}
+
 function prevDayKey(dateStr) {
   const d = new Date(dateStr + "T00:00:00");
   d.setDate(d.getDate() - 1);
@@ -105,7 +111,7 @@ export default function PlannerWeekly({ t, pal, dark, calEvents, recurring, onEd
   function saveEditEvt() {
     if (!viewEvt || !editTitle.trim()) return;
     const newStartCell = editStart ? timeToCell(editStart) : viewEvt.event.startCell;
-    const rawEndCell   = editEnd   ? timeToCell(editEnd) - 1 : viewEvt.event.endCell;
+    const rawEndCell   = editEnd   ? timeToEndCell(editEnd) : viewEvt.event.endCell;
     const newEndCell   = Math.max(newStartCell, rawEndCell);
     const changes = {
       title: editTitle.trim(), color: editColor, memo: editMemo,
@@ -207,7 +213,7 @@ export default function PlannerWeekly({ t, pal, dark, calEvents, recurring, onEd
       .map(e => {
         // Fallback: derive startCell/endCell from startTime/endTime if missing
         const startCell = e.startCell ?? (e.startTime ? timeToCell(e.startTime) : null);
-        const endCell   = e.endCell   ?? (e.endTime   ? Math.max(startCell ?? 0, timeToCell(e.endTime) - 1) : startCell);
+        const endCell   = e.endCell   ?? (e.endTime   ? Math.max(startCell ?? 0, timeToEndCell(e.endTime)) : startCell);
         return { ...e, _dateKey: dateKey, startCell, endCell };
       })
       .filter(e => e.startCell != null);

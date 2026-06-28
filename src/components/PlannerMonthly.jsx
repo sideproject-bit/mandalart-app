@@ -10,6 +10,11 @@ function timeToCell(timeStr) {
   return h * 6 + Math.floor(m / 10);
 }
 
+function timeToEndCell(timeStr) {
+  const [h, m] = timeStr.split(":").map(Number);
+  return Math.ceil((h * 60 + m) / 10) - 1;
+}
+
 function cellToTime(cell) {
   const h = Math.floor(cell / COLS);
   const m = (cell % COLS) * 10;
@@ -102,7 +107,7 @@ export default function PlannerMonthly({ t, pal, dark, lang, calEvents, onCalEve
       endTime: evEnd,
       color: evColor,
       startCell: timeToCell(evStart),
-      endCell: Math.max(timeToCell(evStart), timeToCell(evEnd) - 1),
+      endCell: Math.max(timeToCell(evStart), timeToEndCell(evEnd)),
     };
     onCalEventsChange(prev => ({ ...prev, [key]: [...(prev[key] ?? []), evt] }));
     setEvTitle(""); setEvStart("09:00"); setEvEnd("10:00");
@@ -127,7 +132,7 @@ export default function PlannerMonthly({ t, pal, dark, lang, calEvents, onCalEve
       endTime: rcEnd,
       color: rcColor,
       startCell: timeToCell(rcStart),
-      endCell: Math.max(timeToCell(rcStart), timeToCell(rcEnd) - 1),
+      endCell: Math.max(timeToCell(rcStart), timeToEndCell(rcEnd)),
     }]);
     setRcTitle(""); setRcDays([]); setRcStart("09:00"); setRcEnd("10:00");
   }
@@ -162,7 +167,7 @@ export default function PlannerMonthly({ t, pal, dark, lang, calEvents, onCalEve
   function saveEditEvt() {
     if (!editEvt || !editTitle.trim()) return;
     const newStartCell = editStart ? timeToCell(editStart) : editEvt.evt.startCell;
-    const rawEndCell   = editEnd   ? timeToCell(editEnd) - 1 : editEvt.evt.endCell;
+    const rawEndCell   = editEnd   ? timeToEndCell(editEnd) : editEvt.evt.endCell;
     const newEndCell   = Math.max(newStartCell ?? 0, rawEndCell ?? 0);
     const changes = {
       title: editTitle.trim(), color: editColor, memo: editMemo,

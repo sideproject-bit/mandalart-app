@@ -190,6 +190,13 @@ function timeToCell(timeStr) {
   return h * COLS + Math.floor(m / 10);
 }
 
+// endTime → last occupied cell index (e.g. "10:28" → cell 62 = 10:20~10:30)
+function timeToEndCell(timeStr) {
+  if (!timeStr) return null;
+  const [h, m] = timeStr.split(":").map(Number);
+  return Math.ceil((h * 60 + m) / 10) - 1;
+}
+
 export default function PlannerDaily({ t, pal, dark, editMode, events, onEventsChange, onEditEvent, onEditCalEvent, onDeleteCalEvent, todos, onTodosChange, onMoveToTomorrow, onSkipRecurring, spans, theme, lang, groupEvents = [], onDeleteGroupEvent }) {
   const pl    = t.planner;
   const ink   = pal.ink;
@@ -350,7 +357,7 @@ export default function PlannerDaily({ t, pal, dark, editMode, events, onEventsC
   function saveEditView() {
     if (!viewEvent || !editTitle.trim()) return;
     const newStartCell = editStart ? timeToCell(editStart) : viewEvent.startCell;
-    const rawEndCell   = editEnd   ? timeToCell(editEnd) - 1 : viewEvent.endCell;
+    const rawEndCell   = editEnd   ? timeToEndCell(editEnd) : viewEvent.endCell;
     const newEndCell   = Math.max(newStartCell, rawEndCell);
     const changes = {
       title: editTitle.trim(), color: editColor, memo: editMemo,
