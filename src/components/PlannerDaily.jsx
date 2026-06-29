@@ -173,6 +173,8 @@ function TodoItem({ td, isMobile, editMode, dark, ink, acc, border, pl,
   const subBg  = dark ? "#181710" : "#e4e1d6";
   const dotColor = PRIORITY_COLOR[td.priority] ?? (dark ? "#3a3a3a" : "#d0cdc4");
 
+  const PRIORITY_LABEL = { high: "HIGH", medium: "MED", low: "LOW" };
+
   const mainRow = (
     <div style={{
       display: "flex", alignItems: "center", gap: 6, padding: "6px 6px 6px 0",
@@ -181,18 +183,6 @@ function TodoItem({ td, isMobile, editMode, dark, ink, acc, border, pl,
       transform: isMobile ? `translateX(${dx}px)` : "none",
       transition: startX.current == null ? "transform 0.2s ease" : "none",
     }}>
-      {/* Priority dot */}
-      <div
-        title={td.priority ?? "no priority"}
-        onClick={editMode ? cyclePriority : undefined}
-        style={{
-          width: 8, height: 8, borderRadius: "50%", flexShrink: 0,
-          background: dotColor,
-          cursor: editMode ? "pointer" : "default",
-          border: td.priority ? "none" : `1.5px solid ${dark ? "#555" : "#bbb"}`,
-          boxSizing: "border-box",
-        }}
-      />
       {/* Checkbox */}
       <input
         type="checkbox"
@@ -226,18 +216,45 @@ function TodoItem({ td, isMobile, editMode, dark, ink, acc, border, pl,
           <span style={{ marginLeft: 4, fontSize: 10, opacity: 0.4 }}>{expanded ? "▾" : "▸"}</span>
         )}
       </span>
-      {/* Add subtask button */}
-      {editMode && (
-        <button
-          onClick={() => { setShowSubInput(v => !v); setExpanded(true); setTimeout(() => subInputRef.current?.focus(), 50); }}
-          title="Add sub-task"
-          style={{ background: "none", border: "none", cursor: "pointer", color: ink, opacity: 0.3, fontSize: 14, padding: "0 2px", lineHeight: 1, flexShrink: 0 }}
-        >⊕</button>
-      )}
-      {/* Delete button */}
-      {editMode && !isMobile && (
-        <button onClick={() => onDelete(td.id)} style={{ background: "none", border: "none", cursor: "pointer", color: ink, opacity: 0.25, fontSize: 16, padding: "0 2px", lineHeight: 1, flexShrink: 0 }}>×</button>
-      )}
+
+      {/* Right-side controls */}
+      <div style={{ display: "flex", alignItems: "center", gap: 4, flexShrink: 0 }}>
+        {/* Priority badge — always show when set; show faint in edit mode when unset */}
+        {(td.priority || editMode) && (
+          <button
+            onClick={editMode ? cyclePriority : undefined}
+            title={editMode ? "Click to change priority" : td.priority ?? ""}
+            style={{
+              display: "flex", alignItems: "center", gap: 3,
+              padding: "1px 6px", borderRadius: 3, fontSize: 10, fontWeight: 800,
+              border: "none", cursor: editMode ? "pointer" : "default",
+              letterSpacing: "0.04em",
+              background: td.priority ? PRIORITY_COLOR[td.priority] + "22" : (dark ? "#ffffff0d" : "#0000000a"),
+              color: td.priority ? PRIORITY_COLOR[td.priority] : (dark ? "#ffffff33" : "#00000033"),
+            }}
+          >
+            {td.priority && <span style={{ width: 6, height: 6, borderRadius: "50%", background: PRIORITY_COLOR[td.priority], flexShrink: 0, display: "inline-block" }} />}
+            {td.priority ? PRIORITY_LABEL[td.priority] : "—"}
+          </button>
+        )}
+        {/* Add subtask button */}
+        {editMode && (
+          <button
+            onClick={() => { setShowSubInput(v => !v); setExpanded(true); setTimeout(() => subInputRef.current?.focus(), 50); }}
+            title="Add sub-task"
+            style={{
+              fontSize: 10, fontWeight: 800, padding: "1px 6px", borderRadius: 3,
+              background: showSubInput ? ink + "18" : "none",
+              border: `1px solid ${ink}22`, color: ink, opacity: 0.45,
+              cursor: "pointer", letterSpacing: "0.03em", whiteSpace: "nowrap",
+            }}
+          >+ sub</button>
+        )}
+        {/* Delete */}
+        {editMode && !isMobile && (
+          <button onClick={() => onDelete(td.id)} style={{ background: "none", border: "none", cursor: "pointer", color: ink, opacity: 0.25, fontSize: 16, padding: "0 2px", lineHeight: 1 }}>×</button>
+        )}
+      </div>
     </div>
   );
 

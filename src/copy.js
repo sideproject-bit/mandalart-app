@@ -357,6 +357,8 @@ export const T = {
           items: [
             { t: "Time Blocks", b: "Drag across the grid to mark time slots — each cell is 30 minutes. Double-click a single cell to add a quick event. Release to open the event form." },
             { t: "Events & To-dos", b: "Tap an event to view, edit, or delete it. Check the box on an event to mark it done — a progress bar shows today's completion rate. To-dos persist across dates; completed ones are auto-removed at midnight. On mobile, swipe a to-do left to delete it." },
+            { t: "To-do Priority", b: "In edit mode, each to-do shows a priority badge on the right (— by default). Click it to cycle through HIGH (red) → MED (yellow) → LOW (blue) → none. Higher-priority tasks automatically sort to the top of the list." },
+            { t: "Sub-tasks", b: "Click '+ sub' on any to-do to add sub-tasks beneath it. The parent shows a live X/Y progress count. Checking the parent toggles all sub-tasks at once. The folder counts as one task in the main progress bar — it's marked done only when all sub-tasks are complete." },
             { t: "Weekly View", b: "The Weekly tab shows all 7 days side-by-side on a time grid. Events from daily and monthly views appear here automatically. Scroll horizontally on mobile. Tap an event to see its details." },
             { t: "Monthly View & Recurring", b: "In the Monthly tab, add events to future dates or set events that repeat by day of week. They appear automatically in the daily view on the right day. You can also edit or delete daily events from here." },
             { t: "Midnight Reset", b: "Time blocks reset at midnight each day. Daily events are automatically moved to Monthly view and kept for up to 60 days. Completed to-dos are removed at midnight; incomplete ones remain. Monthly events are not affected." },
@@ -823,6 +825,8 @@ export const T = {
           items: [
             { t: "타임 블럭", b: "그리드를 드래그해 시간대를 선택하세요 — 한 칸이 30분이에요. 한 칸만 더블클릭해도 일정 추가가 가능해요." },
             { t: "일정 & 할 일", b: "일정을 탭하면 상세·수정·삭제 팝업이 떠요. 체크박스로 달성 여부를 표시하면 상단 게이지에 반영돼요. 할 일은 날짜와 무관하게 유지되며, 완료된 것은 자정에 자동 삭제돼요. 모바일에서는 왼쪽으로 밀어서 삭제할 수 있어요." },
+            { t: "할 일 우선순위", b: "편집 모드에서 각 할 일 오른쪽에 우선순위 뱃지(기본: —)가 보여요. 클릭하면 HIGH(빨강) → MED(노랑) → LOW(파랑) → 없음 순으로 바뀌어요. 우선순위가 높은 항목은 자동으로 목록 상단에 정렬돼요." },
+            { t: "서브태스크", b: "할 일 오른쪽의 '+ sub' 버튼을 클릭하면 하위 항목을 추가할 수 있어요. 부모 항목에 X/Y 진행 현황이 실시간으로 표시돼요. 부모 체크박스를 클릭하면 모든 서브태스크가 한 번에 토글돼요. 메인 진행 게이지에서 폴더 전체가 태스크 1개로 집계되며, 서브태스크가 전부 완료돼야 완료로 처리돼요." },
             { t: "주간 보기", b: "주간 탭은 7일을 타임 그리드 위에 나란히 보여줘요. 일일·월간에서 등록한 일정이 자동으로 표시돼요. 모바일에서는 가로로 스크롤하면 돼요. 일정을 탭하면 상세 정보를 볼 수 있어요." },
             { t: "월간 보기 & 반복 일정", b: "월간 탭에서 미래 날짜에 일정을 추가하거나 요일별 반복 일정을 설정할 수 있어요. 일일에서 등록한 일정도 여기서 편집하거나 삭제할 수 있어요." },
             { t: "자정 초기화", b: "타임 블럭은 매일 자정에 초기화돼요. 일일 일정은 자동으로 월간 뷰로 이동되어 최대 60일간 보관돼요. 완료된 할 일은 자정에 삭제되고, 미완료 항목은 유지돼요. 월간 일정은 영향 없어요." },
