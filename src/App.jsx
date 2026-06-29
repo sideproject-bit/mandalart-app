@@ -454,7 +454,7 @@ function AppShell() {
                 {isAdmin && (
                   <button onClick={() => { closeMenu(); navigateTo("admin"); play("F5", "16n"); }}
                     className="home-tile"
-                    style={{ height: 64, flexShrink: 0, background: theme === "mondrian" ? "#E3B22E" : "#C7382E", border: "none", padding: "0 24px", cursor: "pointer", color: theme === "mondrian" ? "#1a1a1a" : "#fff", textAlign: "left", display: "flex", alignItems: "center", gap: 14 }}>
+                    style={{ height: 64, flexShrink: 0, background: "#E3B22E", border: "none", padding: "0 24px", cursor: "pointer", color: "#1a1a1a", textAlign: "left", display: "flex", alignItems: "center", gap: 14 }}>
                     <span style={{ fontWeight: 800, fontSize: 15, textTransform: "uppercase", letterSpacing: "0.02em" }}>Admin</span>
                   </button>
                 )}
@@ -555,7 +555,7 @@ function AppShell() {
               {isAdmin && (
                 <button onClick={() => { navigateTo("admin"); play("F5", "16n"); }} onMouseEnter={() => play("D5", "64n")}
                   className="home-tile"
-                  style={{ background: theme === "mondrian" ? "#E3B22E" : "#C7382E", border: "none", padding: "16px 16px", cursor: "pointer", color: theme === "mondrian" ? "#1a1a1a" : "#fff", textAlign: "left", display: "flex", alignItems: "center", gap: 10 }}>
+                  style={{ background: "#E3B22E", border: "none", padding: "16px 16px", cursor: "pointer", color: "#1a1a1a", textAlign: "left", display: "flex", alignItems: "center", gap: 10 }}>
                   <span style={{ fontWeight: 800, fontSize: 12, textTransform: "uppercase" }}>Admin</span>
                 </button>
               )}
