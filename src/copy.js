@@ -391,6 +391,14 @@ export const T = {
             { t: "Shared Calendar Events", b: "The + button in any chat (1:1 or group) opens an event form. Saved events appear in all members' Daily, Weekly, and Monthly planner views with a [Group Name] or [Username] prefix. Only admins can delete group events." },
           ],
         },
+        {
+          category: "Contact",
+          items: [
+            { t: "Sending a Message", b: "Go to Guide → Contact tab. Fill in a subject and your message, then tap Send. Your message is saved to your account and reviewed by the GridA team." },
+            { t: "Replies & History", b: "When the team replies, you'll receive an in-app notification (and a browser notification if enabled). Open Guide → Contact to see the full reply history under 'Your messages'. Each message shows its status: Pending or Replied." },
+            { t: "What to Include", b: "Bug reports, feature requests, and general feedback are all welcome. For bugs, describe what you were doing when it happened and what device/browser you're using — it helps a lot." },
+          ],
+        },
       ],
     },
     splash: { cta: "Click anywhere to begin writing your Mandalart." },
@@ -847,6 +855,14 @@ export const T = {
             { t: "그룹", b: "'새 그룹' 버튼으로 그룹을 만들 수 있어요. 그룹명은 최대 15자. 이미 친구로 등록된 사람만 초대할 수 있어요. 그룹을 만든 사람이 자동으로 관리자가 돼요." },
             { t: "관리자 & 멤버", b: "관리자는 공유 일정 추가(+ 버튼), 생성 후 멤버 초대, 관리자 이양, 그룹 삭제를 할 수 있어요. 멤버는 채팅 참여와 플래너에서 공유 일정 확인만 가능해요(읽기 전용)." },
             { t: "공유 캘린더 일정", b: "채팅(1:1 또는 그룹)의 + 버튼으로 일정을 추가할 수 있어요. 저장된 일정은 모든 멤버의 일간·주간·월간 플래너에 [그룹명] 또는 [유저명] 접두어와 함께 표시돼요. 그룹 일정 삭제는 관리자만 가능해요." },
+          ],
+        },
+        {
+          category: "문의",
+          items: [
+            { t: "문의 보내기", b: "가이드 → 문의 탭에서 제목과 내용을 입력하고 전송 버튼을 누르세요. 문의 내용은 계정에 저장되며 GridA 팀이 확인해요." },
+            { t: "답변 & 내역 확인", b: "팀에서 답변을 남기면 인앱 알림이 오고, 알림 허용 시 브라우저 알림도 함께 와요. 가이드 → 문의 탭의 '내 문의 내역'에서 전체 답변을 확인할 수 있어요. 각 문의는 '답변 대기' 또는 '답변 완료' 상태로 표시돼요." },
+            { t: "어떤 내용을 보낼까요?", b: "버그 제보, 기능 요청, 일반 피드백 모두 환영해요. 버그 제보 시 어떤 상황에서 발생했는지, 어떤 기기와 브라우저를 사용 중인지 알려주시면 큰 도움이 돼요." },
           ],
         },
       ],
