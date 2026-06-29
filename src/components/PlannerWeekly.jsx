@@ -530,15 +530,27 @@ export default function PlannerWeekly({ t, pal, dark, compact = false, onToggleC
                         return ge.date === prevDayKey(dateKey);
                       }).map(ge => ({ ge, carryOver: true })),
                     ];
-                    const hasGroup = dayGroupEvts.length > 0;
-                    // When group events exist: personal=left 58%, group=right 40%
-                    const personalRight = hasGroup ? "42%" : 1;
-                    const groupLeft     = "60%";
 
                     const validEvts = evts.filter(e => e.startCell != null);
                     const laneMap   = computeLanes(validEvts);
-                    // personal area width: right edge depends on group events
-                    const personalW = hasGroup ? "58%" : "100%";
+
+                    // Per-event overlap check: only split columns when times actually conflict
+                    const cellsOverlap = (s1, e1, s2, e2) => s1 <= e2 && s2 <= e1;
+
+                    // Precompute group event cell ranges for this day
+                    const groupCells = dayGroupEvts.map(({ ge, carryOver }) => {
+                      const isCross = ge.start_time && ge.end_time && ge.start_time > ge.end_time;
+                      const sc = timeToCell(ge.start_time);
+                      return {
+                        startCell: carryOver ? 0 : sc,
+                        endCell:   isCross ? (HOURS * COLS_DAY - 1) : (ge.end_time ? timeToCell(ge.end_time) : sc),
+                      };
+                    });
+
+                    const personalOverlapsGroup = (sc, ec) =>
+                      groupCells.some(g => g.startCell != null && cellsOverlap(sc, ec, g.startCell, g.endCell));
+                    const groupOverlapsPersonal = (sc, ec) =>
+                      validEvts.some(p => p.startCell != null && cellsOverlap(sc, ec, p.startCell, p.endCell));
 
                     return (
                       <>
@@ -549,6 +561,7 @@ export default function PlannerWeekly({ t, pal, dark, compact = false, onToggleC
                           const botPx = Math.min(totalH, (evt.endCell + 1) * PX_PER_CELL) - 1;
                           const htPx  = Math.max(PX_PER_CELL - 2, botPx - topPx);
                           const { lane, totalLanes } = laneMap.get(evt.id) ?? { lane: 0, totalLanes: 1 };
+                          const personalW = personalOverlapsGroup(evt.startCell, evt.endCell) ? "58%" : "100%";
                           const laneW = `calc((${personalW} - 2px) / ${totalLanes})`;
                           const laneL = `calc(1px + ${lane} * (${personalW} - 2px) / ${totalLanes})`;
                           return (
@@ -596,9 +609,10 @@ export default function PlannerWeekly({ t, pal, dark, compact = false, onToggleC
                           const topPx = g.startCell * PX_PER_CELL + 1;
                           const botPx = Math.min(totalH, (g.endCell + 1) * PX_PER_CELL) - 1;
                           const htPx  = Math.max(PX_PER_CELL - 2, botPx - topPx);
+                          const ghostRight = personalOverlapsGroup(g.startCell, g.endCell) ? "42%" : 1;
                           return (
                             <div style={{
-                              position: "absolute", top: topPx, left: 1, right: personalRight, height: htPx,
+                              position: "absolute", top: topPx, left: 1, right: ghostRight, height: htPx,
                               background: g.evt.color + "88",
                               border: `2px dashed ${g.evt.color}`,
                               borderRadius: 2, padding: "1px 3px",
@@ -631,7 +645,7 @@ export default function PlannerWeekly({ t, pal, dark, compact = false, onToggleC
                           );
                         })()}
 
-                        {/* Group events (read-only, right lane) */}
+                        {/* Group events — right lane only when overlapping a personal event */}
                         {dayGroupEvts.map(({ ge, carryOver }) => {
                           const isCross = ge.start_time && ge.end_time && ge.start_time > ge.end_time;
                           const sc = timeToCell(ge.start_time);
@@ -643,6 +657,7 @@ export default function PlannerWeekly({ t, pal, dark, compact = false, onToggleC
                           const botPx = Math.min(totalH, (endCell + 1) * PX_PER_CELL) - 1;
                           const htPx  = Math.max(PX_PER_CELL - 2, botPx - topPx);
                           const blockColor = resolveColor(ge.color);
+                          const geLeft = groupOverlapsPersonal(startCell, endCell) ? "60%" : 1;
                           return (
                             <div key={`${ge.id}_${carryOver ? "co" : "s"}`}
                               data-evt="1"
@@ -662,7 +677,7 @@ export default function PlannerWeekly({ t, pal, dark, compact = false, onToggleC
                                 });
                               } : undefined}
                               style={{
-                                position: "absolute", top: topPx, left: groupLeft, right: 1, height: htPx,
+                                position: "absolute", top: topPx, left: geLeft, right: 1, height: htPx,
                                 background: blockColor + "99",
                                 borderLeft: `2px dashed ${blockColor}`,
                                 borderRadius: 2, padding: "1px 3px",
