@@ -169,6 +169,10 @@ function TodoItem({ td, isMobile, editMode, dark, ink, acc, border, pl,
     if (subText.trim()) { onAddSubtask(td.id, subText.trim()); setSubText(""); }
     setShowSubInput(false);
   };
+  const addSubtaskAndContinue = () => {
+    if (subText.trim()) { onAddSubtask(td.id, subText.trim()); setSubText(""); }
+    else { setShowSubInput(false); }
+  };
 
   const startEdit = () => { setEditText(td.text); setIsEditing(true); setTimeout(() => editInputRef.current?.focus(), 30); };
   const commitEdit = () => {
@@ -370,12 +374,19 @@ function TodoItem({ td, isMobile, editMode, dark, ink, acc, border, pl,
             autoFocus
             value={subText}
             onChange={e => setSubText(e.target.value)}
-            onKeyDown={e => { if (e.key === "Enter") commitSubtask(); if (e.key === "Escape") { setShowSubInput(false); setSubText(""); } }}
-            placeholder="Sub-task name… (Enter to add)"
+            onBlur={() => { setShowSubInput(false); setSubText(""); }}
+            onKeyDown={e => {
+              if (e.key === "Enter") { e.preventDefault(); addSubtaskAndContinue(); setTimeout(() => subInputRef.current?.focus(), 0); }
+              if (e.key === "Escape") { setShowSubInput(false); setSubText(""); }
+            }}
+            placeholder="Sub-task… (Enter to add, empty Enter or Esc to finish)"
             style={{ flex: 1, fontSize: 12, padding: "4px 8px", fontFamily: "inherit", border: `1px solid ${acc}66`, borderRadius: 4, background: dark ? "#1e1d16" : "#fff", color: ink, outline: "none" }}
           />
-          <button onClick={commitSubtask} style={{ background: acc, color: "#fff", border: "none", borderRadius: 4, padding: "4px 10px", fontSize: 11, cursor: "pointer", fontWeight: 700 }}>Add</button>
-          <button onClick={() => { setShowSubInput(false); setSubText(""); }} style={{ background: "none", border: `1px solid ${ink}22`, borderRadius: 4, padding: "4px 8px", fontSize: 11, cursor: "pointer", color: ink, opacity: 0.5 }}>✕</button>
+          <button
+            onMouseDown={e => e.preventDefault()}
+            onClick={() => { setShowSubInput(false); setSubText(""); }}
+            style={{ background: "none", border: `1px solid ${ink}22`, borderRadius: 4, padding: "4px 8px", fontSize: 11, cursor: "pointer", color: ink, opacity: 0.5 }}
+          >✕</button>
         </div>
       )}
     </div>
