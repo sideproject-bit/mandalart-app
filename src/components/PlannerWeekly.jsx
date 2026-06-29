@@ -481,7 +481,7 @@ export default function PlannerWeekly({ t, pal, dark, compact = false, onToggleC
                                 position: "absolute", top: topPx, left: laneL, width: laneW, height: htPx,
                                 background: evt.color + (isDragging ? "44" : "cc"),
                                 borderLeft: `2px solid ${evt.color}`,
-                                borderRadius: 2, padding: "1px 3px 0",
+                                borderRadius: 2, padding: "4px 5px 2px",
                                 overflow: "hidden", zIndex: 1,
                                 cursor: editMode ? (isDragging ? "grabbing" : "grab") : "pointer",
                                 touchAction: editMode ? "none" : undefined,
