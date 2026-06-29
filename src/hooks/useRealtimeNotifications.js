@@ -6,11 +6,13 @@ function tryBrowserNotif(title, body) {
   try { new Notification(title, { body }); } catch (_) {}
 }
 
-export function useRealtimeNotifications(myId, addNotification, notifOn, t) {
-  const notifOnRef   = useRef(notifOn);
-  const addNotifRef  = useRef(addNotification);
-  useEffect(() => { notifOnRef.current  = notifOn; },       [notifOn]);
-  useEffect(() => { addNotifRef.current = addNotification; }, [addNotification]);
+export function useRealtimeNotifications(myId, addNotification, notifOn, t, markGroupUnread) {
+  const notifOnRef        = useRef(notifOn);
+  const addNotifRef       = useRef(addNotification);
+  const markGroupUnreadRef = useRef(markGroupUnread);
+  useEffect(() => { notifOnRef.current        = notifOn; },        [notifOn]);
+  useEffect(() => { addNotifRef.current       = addNotification; }, [addNotification]);
+  useEffect(() => { markGroupUnreadRef.current = markGroupUnread; }, [markGroupUnread]);
 
   // ── 1. Contact message reply ──────────────────────────────────────────
   useEffect(() => {
@@ -47,7 +49,7 @@ export function useRealtimeNotifications(myId, addNotification, notifOn, t) {
       }, async (payload) => {
         const { data: evt } = await supabase
           .from("group_events")
-          .select("title")
+          .select("title, group_id")
           .eq("id", payload.new.event_id)
           .single();
         const p     = t.planner;
@@ -55,6 +57,7 @@ export function useRealtimeNotifications(myId, addNotification, notifOn, t) {
         const body  = p.notifGroupEventInviteBody(evt?.title ?? "");
         addNotifRef.current?.({ type: "info", title, body });
         if (notifOnRef.current) tryBrowserNotif(title, body);
+        if (evt?.group_id) markGroupUnreadRef.current?.(evt.group_id);
       })
       .subscribe();
     return () => { ch?.unsubscribe(); };

@@ -94,6 +94,8 @@ export function useChatNotifications(myId, addNotification, notifOn) {
     setUnreadDirect(prev => { const n = new Set(prev); n.delete(friendId); return n; });
   const clearUnreadGroup = (groupId) =>
     setUnreadGroups(prev => { const n = new Set(prev); n.delete(groupId); return n; });
+  const markGroupUnread = (groupId) =>
+    setUnreadGroups(prev => new Set([...prev, groupId]));
   const setActiveChat = (type, id) => { activeChatRef.current = { type: type ?? null, id: id ?? null }; };
 
   return {
@@ -101,6 +103,7 @@ export function useChatNotifications(myId, addNotification, notifOn) {
     unreadGroups,
     clearUnreadDirect,
     clearUnreadGroup,
+    markGroupUnread,
     setActiveChat,
     refreshChatGroups: loadGroups,
   };

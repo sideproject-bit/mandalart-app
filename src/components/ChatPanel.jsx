@@ -661,9 +661,12 @@ export default function ChatPanel({ pal, dark = false, t, myId, myUsername, addN
           {t.social?.retentionNotice ?? "Messages kept for 30 days."}
         </div>
 
-        {InviteCards}
-
         <div style={{ overflowY: "auto", maxHeight: "calc(100vh - 320px)", minHeight: 120 }}>
+          {chatInvites.length > 0 && (
+            <div style={{ position: "sticky", top: 0, zIndex: 10, background: bg, paddingBottom: 4 }}>
+              {InviteCards}
+            </div>
+          )}
           {loading
             ? <div style={{ textAlign: "center", opacity: 0.3, fontSize: 12, marginTop: 40 }}>…</div>
             : directMessages.length === 0
@@ -798,10 +801,13 @@ export default function ChatPanel({ pal, dark = false, t, myId, myUsername, addN
           </div>
         )}
 
-        {InviteCards}
-
         {/* Messages */}
         <div style={{ overflowY: "auto", maxHeight: "calc(100vh - 320px)", minHeight: 120 }}>
+          {chatInvites.length > 0 && (
+            <div style={{ position: "sticky", top: 0, zIndex: 10, background: bg, paddingBottom: 4 }}>
+              {InviteCards}
+            </div>
+          )}
           {loading
             ? <div style={{ textAlign: "center", opacity: 0.3, fontSize: 12, marginTop: 40 }}>…</div>
             : groupMessages.length === 0
