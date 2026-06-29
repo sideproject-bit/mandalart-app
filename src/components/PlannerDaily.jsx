@@ -931,19 +931,35 @@ export default function PlannerDaily({ t, pal, dark, editMode, events, onEventsC
       <div style={{ overflowY: "auto", maxHeight: GRID_H - 115 }}>
         {sortedTodos.length === 0
           ? <div style={{ fontSize: 12, opacity: 0.3 }}>{pl.noTodos}</div>
-          : sortedTodos.map(td => (
-            <TodoItem
-              key={td.id} td={td}
-              isMobile={isMobile} editMode={editMode} dark={dark} ink={ink} acc={acc} border={border} pl={pl}
-              onToggle={toggleTodo} onDelete={deleteTodo}
-              onUpdatePriority={updatePriority}
-              onAddSubtask={addSubtask}
-              onToggleSubtask={toggleSubtask}
-              onDeleteSubtask={deleteSubtask}
-              onEditTodo={editTodo}
-              onEditSubtask={editSubtask}
-            />
-          ))
+          : sortedTodos.reduce((acc2, td, i) => {
+              const prevPriority = i === 0 ? "__start__" : sortedTodos[i - 1].priority ?? null;
+              const curPriority  = td.priority ?? null;
+              const groupChanged = i > 0 && curPriority !== prevPriority;
+              const label = curPriority ? { high: pl.priorityHigh ?? "HIGH", medium: pl.priorityMedium ?? "MED", low: pl.priorityLow ?? "LOW" }[curPriority] : (pl.priorityNone ?? "—");
+              const labelColor = curPriority ? PRIORITY_COLOR[curPriority] : (dark ? "#ffffff33" : "#00000033");
+              if (i === 0 || groupChanged) {
+                acc2.push(
+                  <div key={`sep-${curPriority ?? "none"}`} style={{ display: "flex", alignItems: "center", gap: 6, margin: i === 0 ? "0 0 4px" : "8px 0 4px" }}>
+                    <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: "0.08em", color: labelColor, opacity: 0.7, textTransform: "uppercase", whiteSpace: "nowrap" }}>{label}</span>
+                    <div style={{ flex: 1, height: 1, background: labelColor, opacity: 0.2 }} />
+                  </div>
+                );
+              }
+              acc2.push(
+                <TodoItem
+                  key={td.id} td={td}
+                  isMobile={isMobile} editMode={editMode} dark={dark} ink={ink} acc={acc} border={border} pl={pl}
+                  onToggle={toggleTodo} onDelete={deleteTodo}
+                  onUpdatePriority={updatePriority}
+                  onAddSubtask={addSubtask}
+                  onToggleSubtask={toggleSubtask}
+                  onDeleteSubtask={deleteSubtask}
+                  onEditTodo={editTodo}
+                  onEditSubtask={editSubtask}
+                />
+              );
+              return acc2;
+            }, [])
         }
       </div>
     </>
