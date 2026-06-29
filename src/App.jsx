@@ -75,10 +75,10 @@ function AppShell() {
   const play = useSound(soundOn);
   const music = useMusicPlayer();
   const { isMobile } = useViewport();
-  useEventNotifications(notifOn, session?.user?.id, t);
-  useRealtimeNotifications(session?.user?.id, addNotification, notifOn, t);
   const { notifications, unreadCount, banner, setBanner, addNotification, markRead, markAllRead, deleteNotification, clearAll: clearAllNotifs } = useNotifications(session?.user?.id);
   const { unreadDirect, unreadGroups, clearUnreadDirect, clearUnreadGroup, setActiveChat, refreshChatGroups } = useChatNotifications(session?.user?.id, addNotification, notifOn);
+  useEventNotifications(notifOn, session?.user?.id, t);
+  useRealtimeNotifications(session?.user?.id, addNotification, notifOn, t);
 
   // Persist dark/lang/notification preferences
   useEffect(() => { localStorage.setItem("grida_dark", dark ? "1" : "0"); }, [dark]);
