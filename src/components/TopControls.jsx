@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Volume2, VolumeX, Moon, Sun, Globe, Music2, Bell, BellOff } from "lucide-react";
+import { Volume2, VolumeX, Moon, Sun, Globe, Music2, Bell } from "lucide-react";
 import { THEMES } from "../theme";
 
 const hex6 = (c) => (c && c.length === 4 ? "#" + c[1] + c[1] + c[2] + c[2] + c[3] + c[3] : c);
@@ -17,29 +17,42 @@ const BOX = (color, active = false, bare = false) => {
   };
 };
 
-export default function TopControls({ pal, dark, setDark, lang, setLang, theme, setTheme, soundOn, setSoundOn, notifOn, toggleNotif, t, play, music, dropdownUp = false, onHome }) {
+// Order: Bell | Dark/Light | Sound | Music | Language | Theme | Home
+export default function TopControls({ pal, dark, setDark, lang, setLang, theme, setTheme, soundOn, setSoundOn, t, play, music, dropdownUp = false, onHome, onBellClick, unreadCount = 0, onSettings }) {
   const [themeOpen, setThemeOpen] = useState(false);
   const [musicOpen, setMusicOpen] = useState(false);
   const dropdownInk = pal.bg === "#F4F0E4" ? "#1B1A17" : "#F2EDE1";
   const dropPos = dropdownUp ? { bottom: "calc(100% + 6px)" } : { top: "calc(100% + 6px)" };
   const closeAll = () => { setThemeOpen(false); setMusicOpen(false); };
   const ink = pal.ink;
-  const bare = dropdownUp; // home view: no borders
+  const bare = dropdownUp;
 
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 4, position: "relative" }}>
+
+      {/* Bell — opens notification panel */}
+      {onBellClick && (
+        <button onClick={onBellClick} title={t.notifications} style={{ ...BOX(ink, false, bare), position: "relative" }}>
+          <Bell size={18} />
+          {unreadCount > 0 && (
+            <span style={{
+              position: "absolute", top: 8, right: 8,
+              width: 7, height: 7, background: "#C7382E", borderRadius: "50%",
+              pointerEvents: "none",
+            }} />
+          )}
+        </button>
+      )}
+
+      {/* Dark / Light */}
+      <button onClick={() => { setDark((d) => !d); play("C5", "32n"); }} title={dark ? t.light : t.dark} style={BOX(ink, false, bare)}>
+        {dark ? <Sun size={18} /> : <Moon size={18} />}
+      </button>
 
       {/* Sound */}
       <button onClick={() => { setSoundOn((s) => !s); play("A4", "32n"); }} title={t.sound} style={BOX(ink, !soundOn, bare)}>
         {soundOn ? <Volume2 size={18} /> : <VolumeX size={18} />}
       </button>
-
-      {/* Notifications */}
-      {toggleNotif && (
-        <button onClick={toggleNotif} title={t.notifications} style={BOX(ink, notifOn, bare)}>
-          {notifOn ? <Bell size={18} /> : <BellOff size={18} />}
-        </button>
-      )}
 
       {/* Music */}
       {music && (
@@ -75,11 +88,6 @@ export default function TopControls({ pal, dark, setDark, lang, setLang, theme, 
         </div>
       )}
 
-      {/* Dark / Light */}
-      <button onClick={() => { setDark((d) => !d); play("C5", "32n"); }} title={dark ? t.light : t.dark} style={BOX(ink, false, bare)}>
-        {dark ? <Sun size={18} /> : <Moon size={18} />}
-      </button>
-
       {/* Language */}
       <button
         onClick={() => { setLang((l) => (l === "en" ? "ko" : "en")); play("B4", "32n"); }}
@@ -101,7 +109,7 @@ export default function TopControls({ pal, dark, setDark, lang, setLang, theme, 
               <>
                 <span style={{ flex: 1, background: "#C7382E" }} />
                 <span style={{ flex: 1, background: "#2B3DCB" }} />
-                <span style={{ flex: 1, background: "#E3B22E" }} />
+                <span style={{ flex: 1, background: "#F5C800" }} />
               </>
             ) : (
               <span style={{ flex: 1, background: pal.accent }} />
@@ -131,7 +139,7 @@ export default function TopControls({ pal, dark, setDark, lang, setLang, theme, 
         )}
       </div>
 
-      {/* Logo — rightmost, only on non-home screens */}
+      {/* Home logo — rightmost, only on non-home screens */}
       {onHome && (
         <button onClick={onHome} title="Home" style={{ ...BOX(ink, false, bare), padding: 6 }}>
           <img src="/logo.png" alt="GridA" style={{ width: 26, height: 26, objectFit: "contain" }} />
