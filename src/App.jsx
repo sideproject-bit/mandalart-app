@@ -312,7 +312,7 @@ function AppShell() {
           weeklyCompact={weeklyCompact} onToggleWeeklyCompact={() => setWeeklyCompact(v => !v)}
           music={music} t={t} play={play}
           onClose={() => setDesktopSettingsOpen(false)}
-          onGuide={() => { setDesktopSettingsOpen(false); setMandalartGuideOpen(true); }}
+          onNavigate={(view, opts) => { setDesktopSettingsOpen(false); navigateTo(view, opts); }}
           onPlannerReset={() => setPlannerResetConfirm(true)}
         />
       )}
