@@ -471,7 +471,7 @@ export default function PlannerWeekly({ t, pal, dark, compact = false, onToggleC
               }).filter(Boolean);
               if (weekSpans.length === 0) return null;
               return (
-                <div style={{ position: "relative", height: weekSpans.length * 13 + 4, marginLeft: LABEL_W }}>
+                <div style={{ position: "relative", height: weekSpans.length * 13 + 4, marginLeft: LABEL_W, overflow: "hidden" }}>
                   {weekSpans.map((s, si) => (
                     <div key={s.id} style={{
                       position: "absolute",
@@ -481,7 +481,7 @@ export default function PlannerWeekly({ t, pal, dark, compact = false, onToggleC
                       height: 11,
                       background: s.color + "cc",
                       borderRadius: `${s.isFirst ? 2 : 0}px ${s.colEnd === 6 || s.endDate <= dayKeys[6] ? 2 : 0}px ${s.colEnd === 6 || s.endDate <= dayKeys[6] ? 2 : 0}px ${s.isFirst ? 2 : 0}px`,
-                      overflow: "hidden", whiteSpace: "nowrap",
+                      overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis",
                       paddingLeft: s.isFirst ? 4 : 2,
                       fontSize: 7, fontWeight: 700, color: "#fff", lineHeight: "11px",
                       pointerEvents: "none",

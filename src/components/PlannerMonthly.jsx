@@ -235,7 +235,7 @@ export default function PlannerMonthly({ t, pal, dark, lang, calEvents, onCalEve
             });
 
             return (
-              <div key={row} style={{ position: "relative", marginBottom: 2 }}>
+              <div key={row} style={{ position: "relative", marginBottom: 2, overflow: "hidden" }}>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 2 }}>
                   {rowCells.map((d, ci) => {
                     if (!d) return <div key={ci} style={{ minWidth: 0 }} />;
@@ -278,7 +278,7 @@ export default function PlannerMonthly({ t, pal, dark, lang, calEvents, onCalEve
                     height: 11,
                     background: bar.color + "cc",
                     borderRadius: `${bar.isSpanStart ? 2 : 0}px ${bar.isSpanEnd ? 2 : 0}px ${bar.isSpanEnd ? 2 : 0}px ${bar.isSpanStart ? 2 : 0}px`,
-                    overflow: "hidden", whiteSpace: "nowrap",
+                    overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis",
                     paddingLeft: bar.isSpanStart ? 4 : 2,
                     fontSize: 7, fontWeight: 700, color: "#fff", lineHeight: "11px",
                     pointerEvents: "none", zIndex: 2,
