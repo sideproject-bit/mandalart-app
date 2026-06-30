@@ -300,7 +300,7 @@ export default function PlannerMonthly({ t, pal, dark, lang, calEvents, onCalEve
                       <div key={ci}
                         onClick={() => setSelectedDay(d === selectedDay ? null : d)}
                         style={{
-                          height: 64, borderRadius: 4, cursor: "pointer", minWidth: 0,
+                          height: isMobile ? 64 : 84, borderRadius: 4, cursor: "pointer", minWidth: 0,
                           display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start",
                           background: isSelected ? acc : isToday ? acc + "22" : "transparent",
                           border: `1px solid ${isSelected ? acc : border}`,
