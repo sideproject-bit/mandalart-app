@@ -271,15 +271,19 @@ export default function PlannerMonthly({ t, pal, dark, lang, calEvents, onCalEve
 
             // Assign lanes: sort by duration desc so longest spans get lane 0,
             // then invert bottom offset so lane 0 renders at the top.
+            // Each lane tracks all its bars (not just the last) so out-of-order
+            // processing still detects real overlaps correctly.
             const sortedRowBars = [...rowBars].sort((a, b) => (b.colEnd - b.colStart) - (a.colEnd - a.colStart));
-            const laneEnds = [];
+            const lanes = []; // lanes[i] = array of bars assigned to lane i
             const barsWithLane = sortedRowBars.map(bar => {
-              const lane = laneEnds.findIndex(end => end < bar.colStart);
-              const assignedLane = lane === -1 ? laneEnds.length : lane;
-              laneEnds[assignedLane] = bar.colEnd;
+              let assignedLane = lanes.findIndex(laneBars =>
+                laneBars.every(b => bar.colEnd < b.colStart || bar.colStart > b.colEnd)
+              );
+              if (assignedLane === -1) { assignedLane = lanes.length; lanes.push([]); }
+              lanes[assignedLane].push(bar);
               return { ...bar, lane: assignedLane };
             });
-            const totalLanes = laneEnds.length;
+            const totalLanes = lanes.length;
 
             return (
               <div key={row} style={{ position: "relative", marginBottom: 2, overflow: "hidden" }}>
